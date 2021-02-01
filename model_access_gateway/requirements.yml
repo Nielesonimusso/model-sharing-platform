@@ -1,0 +1,15 @@
+name: model-access-gateway
+channels:
+  - defaults
+dependencies:
+  - pip=20.0.2
+  - python=3.8.2
+  - pip:
+    - flask==1.1.1
+    - flask-sqlalchemy==2.4.1
+    - jellyfish==0.8.2
+    - marshmallow==3.5.1
+    - psycopg2-binary==2.8.4
+    - requests==2.23.0
+    - sqlalchemy==1.3.16
+    - ipdb==0.13.3

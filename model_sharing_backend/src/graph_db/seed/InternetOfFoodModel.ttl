@@ -1,0 +1,290 @@
+# baseURI: http://www.foodvoc.org/resource/InternetOfFoodModel/
+# imports: http://www.w3.org/2004/02/skos/core
+# prefix: inofm
+
+@prefix : <http://www.foodvoc.org/resource/InternetOfFoodModel/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix inofm: <http://www.foodvoc.org/resource/InternetOfFoodModel/> .
+@prefix om: <http://www.ontology-of-units-of-measure.org/resource/om-2/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+rdf:type
+  rdf:type owl:ObjectProperty ;
+.
+inofm:
+  rdf:type owl:Ontology ;
+  owl:imports <http://www.w3.org/2004/02/skos/core> ;
+.
+inofm:Model
+  rdf:type owl:Class ;
+  rdfs:label "model" ;
+  rdfs:subClassOf owl:Thing ;
+.
+inofm:SensoryAttribute
+  rdf:type owl:Class ;
+  rdfs:label "sensory attribute"@en ;
+  rdfs:subClassOf om:Quantity ;
+.
+inofm:SensoryCharacteristic
+  rdf:type owl:Class ;
+  rdfs:label "sensory characteristic"@en ;
+  rdfs:subClassOf owl:Thing ;
+.
+inofm:densityOfProductDosage
+  rdf:type om:Density ;
+  om:hasPhenomenon inofm:productDosage ;
+  om:hasUnit om:gramPerLitre ;
+.
+inofm:flavour
+  rdf:type inofm:SensoryCharacteristic ;
+  rdfs:label "flavour"@en ;
+.
+inofm:foodProduct
+  rdf:type skos:Concept ;
+  rdfs:label "food product"@en ;
+  skos:narrower inofm:soup ;
+.
+inofm:hasID
+  rdf:type owl:DatatypeProperty ;
+  rdfs:comment "stores the name of the model" ;
+  rdfs:domain inofm:Model ;
+  rdfs:label "has ID" ;
+  rdfs:range xsd:string ;
+.
+inofm:hasInput
+  rdf:type owl:ObjectProperty ;
+  rdfs:comment "stores the input quantities of the model" ;
+  rdfs:domain inofm:Model ;
+  rdfs:range om:Quantity ;
+.
+inofm:hasOutput
+  rdf:type owl:ObjectProperty ;
+  rdfs:comment "stores the input quantities of the model" ;
+  rdfs:domain inofm:Model ;
+  rdfs:range om:Quantity ;
+.
+inofm:ingredient
+  rdf:type skos:Concept ;
+  rdfs:label "ingredient"@en ;
+  skos:narrower inofm:salt ;
+  skos:narrower inofm:sugar ;
+  skos:narrower inofm:tomato ;
+  skos:narrower inofm:tomatoStandard ;
+  skos:narrower inofm:vinegar ;
+  skos:narrower inofm:vinegar10Percent ;
+  skos:narrower inofm:water ;
+.
+inofm:isAbout
+  rdf:type owl:ObjectProperty ;
+  rdfs:domain inofm:SensoryAttribute ;
+  rdfs:range inofm:SensoryCharacteristic ;
+.
+inofm:isAboutProduct
+  rdf:type owl:ObjectProperty ;
+  rdfs:comment "this property identifies the end product that model is engaged" ;
+  rdfs:domain inofm:Model ;
+.
+inofm:massOfSalt
+  rdf:type om:MassFraction ;
+  om:hasPhenomenon inofm:salt ;
+  om:hasUnit om:percent ;
+.
+inofm:massOfSugar
+  rdf:type om:MassFraction ;
+  om:hasPhenomenon inofm:sugar ;
+  om:hasUnit om:percent ;
+.
+inofm:massOfTomatoStandard
+  rdf:type om:MassFraction ;
+  om:hasPhenomenon inofm:tomatoStandard ;
+  om:hasUnit om:percent ;
+.
+inofm:massOfVinegar10percent
+  rdf:type om:MassFraction ;
+  om:hasPhenomenon inofm:vinegar10Percent ;
+  om:hasUnit om:percent ;
+.
+inofm:massOfWater
+  rdf:type om:MassFraction ;
+  om:hasPhenomenon inofm:water ;
+  om:hasUnit om:percent ;
+.
+inofm:productDosage
+  rdf:type skos:Concept ;
+  rdfs:label "dosering van het product"@nl ;
+  rdfs:label "product dosage"@en ;
+.
+inofm:salt
+  rdf:type skos:Concept ;
+  rdfs:label "salt"@en ;
+  rdfs:label "zout"@nl ;
+.
+inofm:saltiness
+  rdf:type inofm:SensoryCharacteristic ;
+  rdfs:label "saltiness"@en ;
+.
+inofm:soup
+  rdf:type skos:Concept ;
+  rdfs:label "soup"@en ;
+.
+inofm:soupSaltiness
+  rdf:type inofm:SensoryAttribute ;
+  inofm:isAbout inofm:saltiness ;
+  om:hasPhenomenon inofm:soup ;
+  om:hasUnit om:_0-100 ;
+.
+inofm:soupSourness
+  rdf:type inofm:SensoryAttribute ;
+  inofm:isAbout inofm:sourness ;
+  om:hasPhenomenon inofm:soup ;
+  om:hasUnit om:_0-100 ;
+.
+inofm:soupSweetness
+  rdf:type inofm:SensoryAttribute ;
+  inofm:isAbout inofm:sweetness ;
+  om:hasPhenomenon inofm:soup ;
+  om:hasUnit om:_0-100 ;
+.
+inofm:soupTomatoFlavour
+  rdf:type inofm:SensoryAttribute ;
+  inofm:isAbout inofm:flavour ;
+  om:hasPhenomenon inofm:soup ;
+  om:hasUnit om:_0-100 ;
+.
+inofm:sourness
+  rdf:type inofm:SensoryCharacteristic ;
+  rdfs:label "sourness"@en ;
+.
+inofm:sugar
+  rdf:type skos:Concept ;
+  rdfs:label "sugar"@en ;
+  rdfs:label "suiker"@nl ;
+.
+inofm:sweetness
+  rdf:type inofm:SensoryCharacteristic ;
+  rdfs:label "sweetness"@en ;
+.
+inofm:tomato
+  rdf:type skos:Concept ;
+  rdfs:label "tomaten"@en ;
+  rdfs:label "tomato"@en ;
+  skos:narrower inofm:tomatoStandard ;
+.
+inofm:tomatoSoupModel
+  rdf:type inofm:Model ;
+  inofm:hasID "Tomatensoep"@nl ;
+  inofm:hasID "Tomato Soup"@en ;
+  inofm:hasInput inofm:densityOfProductDosage ;
+  inofm:hasInput inofm:massOfSalt ;
+  inofm:hasInput inofm:massOfSugar ;
+  inofm:hasInput inofm:massOfTomatoStandard ;
+  inofm:hasInput inofm:massOfVinegar10percent ;
+  inofm:hasInput inofm:massOfWater ;
+  inofm:hasOutput inofm:soupSaltiness ;
+  inofm:hasOutput inofm:soupSourness ;
+  inofm:hasOutput inofm:soupSweetness ;
+  inofm:hasOutput inofm:soupTomatoFlavour ;
+  inofm:isAboutProduct inofm:soup ;
+  rdfs:label "tomato soup model"@en ;
+.
+inofm:tomatoStandard
+  rdf:type skos:Concept ;
+  rdfs:label "tomaten standaard"@nl ;
+  rdfs:label "tomato standard"@en ;
+  skos:broader inofm:tomato ;
+.
+inofm:vinegar
+  rdf:type skos:Concept ;
+  rdfs:label "azijn"@nl ;
+  rdfs:label "vinegar"@en ;
+  skos:narrower inofm:vinegar10Percent ;
+.
+inofm:vinegar10Percent
+  rdf:type skos:Concept ;
+  rdfs:label "azijn 10%"@nl ;
+  rdfs:label "vinegar 10%"@en ;
+  skos:broader inofm:vinegar ;
+.
+inofm:water
+  rdf:type skos:Concept ;
+  rdfs:label "water"@en ;
+  rdfs:label "water"@nl ;
+.
+om:Density
+  rdf:type owl:Class ;
+  rdfs:label "density"@en ;
+  rdfs:subClassOf om:Quantity ;
+.
+om:MassFraction
+  rdf:type owl:Class ;
+  rdfs:label "mass fraction"@en ;
+  rdfs:subClassOf om:Quantity ;
+.
+om:MolarVolume
+  rdf:type owl:Class ;
+  rdfs:label "molar volume"@en ;
+  rdfs:subClassOf om:Quantity ;
+.
+om:Quantity
+  rdf:type owl:Class ;
+  rdfs:label "quantity" ;
+  rdfs:subClassOf owl:Thing ;
+.
+om:Temperature
+  rdf:type owl:Class ;
+  rdfs:label "temperature"@en ;
+  rdfs:subClassOf om:Quantity ;
+.
+om:Unit
+  rdf:type owl:Class ;
+  rdfs:label "unit"@en ;
+  rdfs:subClassOf owl:Thing ;
+.
+om:Volume
+  rdf:type owl:Class ;
+  rdfs:label "volume"@en ;
+  rdfs:subClassOf om:Quantity ;
+.
+om:VolumeFraction
+  rdf:type owl:Class ;
+  rdfs:label "volume fraction"@en ;
+  rdfs:subClassOf om:Quantity ;
+.
+om:_0-100
+  rdf:type om:Unit ;
+  rdfs:label "0-100"@en ;
+.
+om:gramPerLitre
+  rdf:type om:Unit ;
+  rdfs:label "gram per litre"@en ;
+.
+om:hasPhenomenon
+  rdf:type owl:FunctionalProperty ;
+  rdf:type owl:ObjectProperty ;
+  rdfs:domain om:Quantity ;
+.
+om:hasUnit
+  rdf:type owl:ObjectProperty ;
+  rdfs:domain om:Quantity ;
+  rdfs:range om:Unit ;
+.
+om:hasValue
+  rdf:type owl:ObjectProperty ;
+.
+om:percent
+  rdf:type om:Unit ;
+  om:symbol "%" ;
+  rdfs:comment "The percent is a unit of dimension one defined as 1/100." ;
+  rdfs:label "percent"@en ;
+  rdfs:label "procent"@nl ;
+.
+om:symbol
+  rdf:type owl:AnnotationProperty ;
+  rdfs:label "symbol" ;
+  rdfs:range xsd:string ;
+.

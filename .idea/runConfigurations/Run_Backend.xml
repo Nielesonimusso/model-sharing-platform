@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run Backend" type="CompoundRunConfigurationType">
+    <toRun name="Gateway Only" type="PythonConfigurationType" />
+    <toRun name="Ingredient Service Only" type="PythonConfigurationType" />
+    <toRun name="Backend Only" type="PythonConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

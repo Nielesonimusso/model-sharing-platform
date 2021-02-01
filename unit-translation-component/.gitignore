@@ -1,0 +1,16 @@
+.vscode/
+templates/__pycache__/
+__pycache__/
+templates/test.py
+.om-2.ttl.icloud
+.vs/
+# Compiled python modules.
+*.pyc
+
+# Setuptools distribution folder.
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+ws.code-workspace
+.coverage

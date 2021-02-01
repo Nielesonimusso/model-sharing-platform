@@ -1,0 +1,40 @@
+image: python:latest
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+before_script:
+    - python -V
+    - pip install virtualenv --quiet
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install flake8 --quiet
+    - pip install -r requirements.txt
+    - pip install .
+
+stages:
+    - linter
+    - tests
+
+#pylint:
+#    stage: Static Analysis
+#    allow_failure: true
+#    script:
+#    - pip install pylint --quiet
+#    - pylint -d missing-module-docstring -d missing-class-docstring -d missing-function-docstring ./templates
+
+flake8:
+    stage: linter
+    allow_failure: true # allow fail so unit tests can run
+    script:
+    - flake8 --ignore=E501,F401 unit_translation_component/
+    # According to PEP8 line-break should come after binary operator. That's why disable W503
+ 
+pytest:
+    stage: tests
+    allow_failure: false
+    script:
+    - coverage run --source unit_translation_component/ -m pytest
+    - coverage report -m
