@@ -4,7 +4,7 @@ import bcrypt
 
 from common_data_access.db_initialize import BaseDbInitialize
 from .company import Company
-from .food_product_models import FoodProduct, Ingredient, FoodProductProcessingStep, ProcessingStepProperty
+from .food_product_models import FoodProduct, Ingredient, FoodProductProcessingStep, ProcessingStepProperty, FoodProductPermission
 from .model_info import ModelInfo, ModelPermission, ModelPermissionTypes
 from .simulation import Simulation
 from .user import User
@@ -110,6 +110,9 @@ class ModelDbInitialize(BaseDbInitialize):
                                    ProcessingStepProperty(name='Speed', value='50', unit='rpm')])],
                                created_on=datetime.utcnow(),
                                created_by=User.query.get_one_where(User.username == u2), owner=company_unilever).save()
+
+        fp_ts_de.permissions.append(FoodProductPermission(company_id=company_tue.id, food_product_id=fp_ts_de.id))
+        fp_ts_de.save()
 
         FoodProduct(name='Tomato Ketchup', company_code='TOM_KET_001', standard_code='TOM_KET_001',
                     dosage=250, dosage_unit="gram per litre", ingredients=
