@@ -5,7 +5,7 @@ import bcrypt
 from common_data_access.db_initialize import BaseDbInitialize
 from .company import Company
 from .food_product_models import FoodProduct, Ingredient, FoodProductProcessingStep, ProcessingStepProperty
-from .model_info import ModelInfo
+from .model_info import ModelInfo, ModelPermission, ModelPermissionTypes
 from .simulation import Simulation
 from .user import User
 
@@ -147,6 +147,22 @@ class ModelDbInitialize(BaseDbInitialize):
                        created_by=User.query.get_one_where(User.username == u2),
                        ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
                        ).save()
+
+        m3.permissions.append(ModelPermission(model_info_id=m3.id, company_id=company_tue.id,
+                                              permission_type=ModelPermissionTypes.VIEW_AND_EXECUTE))
+        m3.save()
+
+        m4 = ModelInfo(name='Tomato soup nutrition information model',
+                       description='This model calculates the nutrition information of tomato soup',
+                       price=5, gateway_url='http://nutrition-model-access-gateway:5001', is_connected=True,
+                       owner=company_unilever, created_on=datetime.utcnow(),
+                       created_by=User.query.get_one_where(User.username == u2), 
+                       ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
+                       ).save()
+
+        m4.permissions.append(ModelPermission(model_info_id=m4.id, company_id=company_tue.id,
+                                              permission_type=ModelPermissionTypes.VIEW_AND_EXECUTE))
+        m4.save()
 
         #
         # SIMULATIONS

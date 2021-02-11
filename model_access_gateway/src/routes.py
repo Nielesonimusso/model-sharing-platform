@@ -9,9 +9,10 @@ from common_data_access.dtos import ModelRunStatus, ModelRunStatusDtoSchema, \
     ModelResultDtoSchema, RunModelDtoSchema, ModelRunParameterSchema
 from common_data_access.json_extension import get_json
 from .db import SimulationRun
-from .dtos import TasteSchema, RecipeSchema
+from .dtos import TasteSchema, RecipeSchema, NutritionSchema
 from .ingredient_store import get_ingredient_properties
 from .tomato_soup_taste_model import calculate_taste
+from .nutrition_model import calculate_nutrition
 
 routes_blueprint = Blueprint('gateway', __name__)
 
@@ -30,9 +31,15 @@ def run_model():
                                    parameters=request.json).save()
 
     recipe = __create_recipe_from_data(model_run_request.data)
-    taste = calculate_taste(recipe, [get_ingredient_properties(i.company_code) for i in recipe.ingredients],
-                            current_app.config['TASTES_TO_CALCULATE'])
-    simulation_run.result = TasteSchema().dump(taste, many=True)
+    if current_app.config['CALCULATE_NUTRITION']:
+        current_app.logger.info("Performing nutrition model calculation")
+        nutrition = calculate_nutrition(recipe, [get_ingredient_properties(i.company_code) for i in recipe.ingredients])
+        simulation_run.result = NutritionSchema().dump(nutrition, many=True)
+    else:
+        taste = calculate_taste(recipe, [get_ingredient_properties(i.company_code) for i in recipe.ingredients],
+                                current_app.config['TASTES_TO_CALCULATE'])
+        simulation_run.result = TasteSchema().dump(taste, many=True)
+    
     simulation_run.completed_on = datetime.utcnow()
     simulation_run.status = ModelRunStatus.SUCCESS
     simulation_run.save()

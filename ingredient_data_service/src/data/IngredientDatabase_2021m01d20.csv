@@ -1,0 +1,133 @@
+﻿Ingredient,IngredientCode,IngredientProperty,ValueText,ValueNum,UnitOfMeasure
+Sugar,10001,Sucrose,100,100,%
+Sugar,10001,Fructose,0,0,%
+Sugar,10001,Glucose,0,0,%
+Sugar,10001,AceticAcid,0,0,%
+Sugar,10001,CitricAcid,0,0,%
+Sugar,10001,Water,0,0,%
+Sugar,10001,Na,0,0,%
+Sugar,10001,K,0,0,%
+Sugar,10001,Cl,0,0,%
+Sugar,10001,Protein,0,0,%
+Sugar,10001,Fats,0,0,%
+Sugar,10001,Carbohydrates,0,0,%
+FructoseSyrop,10002,Sucrose,100,100,%
+FructoseSyrop,10002,Fructose,0,0,%
+FructoseSyrop,10002,Glucose,0,0,%
+FructoseSyrop,10002,AceticAcid,0,0,%
+FructoseSyrop,10002,CitricAcid,0,0,%
+FructoseSyrop,10002,Water,0,0,%
+FructoseSyrop,10002,Na,0,0,%
+FructoseSyrop,10002,K,0,0,%
+FructoseSyrop,10002,Cl,0,0,%
+FructoseSyrop,10002,Protein,0,0,%
+FructoseSyrop,10002,Fats,0,0,%
+FructoseSyrop,10002,Carbohydrates,0,0,%
+Vinegar 10%,10003,Sucrose,0,0,%
+Vinegar 10%,10003,Fructose,0,0,%
+Vinegar 10%,10003,Glucose,0,0,%
+Vinegar 10%,10003,AceticAcid,10,10,%
+Vinegar 10%,10003,CitricAcid,0,0,%
+Vinegar 10%,10003,Na,0,0,%
+Vinegar 10%,10003,K,0,0,%
+Vinegar 10%,10003,Cl,0,0,%
+Vinegar 10%,10003,Water,90,90,%
+Vinegar 10%,10003,Protein,0,0,%
+Vinegar 10%,10003,Fats,0,0,%
+Vinegar 10%,10003,Carbohydrates,0,0,%
+Vinegar 12%,10004,Sucrose,0,0,%
+Vinegar 12%,10004,Fructose,0,0,%
+Vinegar 12%,10004,Glucose,0,0,%
+Vinegar 12%,10004,AceticAcid,12,88,%
+Vinegar 12%,10004,CitricAcid,0,0,%
+Vinegar 12%,10004,Water,88,88,%
+Vinegar 12%,10004,Na,0,0,%
+Vinegar 12%,10004,K,0,0,%
+Vinegar 12%,10004,Cl,0,0,%
+Vinegar 12%,10004,Protein,0,0,%
+Vinegar 12%,10004,Fats,0,0,%
+Vinegar 12%,10004,Carbohydrates,0,0,%
+Salt,10005,Sucrose,0,0,%
+Salt,10005,Fructose,0,0,%
+Salt,10005,Glucose,0,0,%
+Salt,10005,AceticAcid,0,0,%
+Salt,10005,CitricAcid,0,0,%
+Salt,10005,Water,0,0,%
+Salt,10005,Na,39.3,39.3,%
+Salt,10005,K,0,0,%
+Salt,10005,Cl,60.7,60.7,%
+Salt,10005,Protein,0,0,%
+Salt,10005,Fats,0,0,%
+Salt,10005,Carbohydrates,0,0,%
+KCl,10006,Sucrose,0,0,%
+KCl,10006,Fructose,0,0,%
+KCl,10006,Glucose,0,0,%
+KCl,10006,AceticAcid,0,0,%
+KCl,10006,CitricAcid,0,0,%
+KCl,10006,Water,0,0,%
+KCl,10006,Na,0,0,%
+KCl,10006,K,52.3,52.3,%
+KCl,10006,Cl,47.7,47.7,%
+KCl,10006,Protein,0,0,%
+KCl,10006,Fats,0,0,%
+KCl,10006,Carbohydrates,0,0,%
+Tomato Standard,10007,Sucrose,2,2,%
+Tomato Standard,10007,Fructose,0,0,%
+Tomato Standard,10007,Glucose,0.5,0.5,%
+Tomato Standard,10007,AceticAcid,0.5,0.5,%
+Tomato Standard,10007,CitricAcid,0.5,0.5,%
+Tomato Standard,10007,Water,90.5,90.5,%
+Tomato Standard,10007,Na,0.393,0.393,%
+Tomato Standard,10007,K,0,0,%
+Tomato Standard,10007,Cl,0.607,0.607,%
+Tomato Standard,10007,Protein,5,5,%
+Tomato Standard,10007,Fats,0,0,%
+Tomato Standard,10007,Carbohydrates,0,0,%
+Tomato Sweet,10008,Sucrose,3,3,%
+Tomato Sweet,10008,Fructose,0,0,%
+Tomato Sweet,10008,Glucose,1,1,%
+Tomato Sweet,10008,AceticAcid,0.5,0.5,%
+Tomato Sweet,10008,CitricAcid,0.5,0.5,%
+Tomato Sweet,10008,Water,89,89,%
+Tomato Sweet,10008,Na,0.393,0.393,%
+Tomato Sweet,10008,K,0,0,%
+Tomato Sweet,10008,Cl,0.607,0.607,%
+Tomato Sweet,10008,Protein,5,5,%
+Tomato Sweet,10008,Fats,0,0,%
+Tomato Sweet,10008,Carbohydrates,0,0,%
+Water,10009,Sucrose,0,0,%
+Water,10009,Fructose,0,0,%
+Water,10009,Glucose,0,0,%
+Water,10009,AceticAcid,0,0,%
+Water,10009,CitricAcid,0,0,%
+Water,10009,Water,100,100,%
+Water,10009,Na,0,0,%
+Water,10009,K,0,0,%
+Water,10009,Cl,0,0,%
+Water,10009,Protein,0,0,%
+Water,10009,Fats,0,0,%
+Water,10009,Carbohydrates,0,0,%
+Sunflower oil,10010,Sucrose,0,0,%
+Sunflower oil,10010,Fructose,0,0,%
+Sunflower oil,10010,Glucose,0,0,%
+Sunflower oil,10010,AceticAcid,0,0,%
+Sunflower oil,10010,CitricAcid,0,0,%
+Sunflower oil,10010,Water,50,50,%
+Sunflower oil,10010,Na,0,0,%
+Sunflower oil,10010,K,0,0,%
+Sunflower oil,10010,Cl,0,0,%
+Sunflower oil,10010,Protein,0,0,%
+Sunflower oil,10010,Fats,50,50,%
+Sunflower oil,10010,Carbohydrates,0,0,%
+Potato Starch,10011,Sucrose,0,0,%
+Potato Starch,10011,Fructose,0,0,%
+Potato Starch,10011,Glucose,0,0,%
+Potato Starch,10011,AceticAcid,0,0,%
+Potato Starch,10011,CitricAcid,0,0,%
+Potato Starch,10011,Water,0,0,%
+Potato Starch,10011,Na,0,0,%
+Potato Starch,10011,K,0,0,%
+Potato Starch,10011,Cl,0,0,%
+Potato Starch,10011,Protein,0,0,%
+Potato Starch,10011,Fats,0,0,%
+Potato Starch,10011,Carbohydrates,100,100,%

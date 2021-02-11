@@ -4,7 +4,8 @@ import os
 class BaseConfiguration():
     # application config
     PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))
-    INGREDIENT_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/IngredientDatabase_2020m02d21.csv')
+    # INGREDIENT_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/IngredientDatabase_2020m02d21.csv')
+    INGREDIENT_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/IngredientDatabase_2021m01d20.csv')
 
     # flask config
     TESTING = False

@@ -6,6 +6,7 @@ class BaseConfiguration():
     PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))
     INGREDIENT_SERVICE_URL = 'http://localhost:5002'
     TASTES_TO_CALCULATE = os.getenv('TASTES_TO_CALCULATE', 'sweetness,sourness,saltiness,tomato taste').split(',')
+    CALCULATE_NUTRITION = os.getenv('CALCULATE_NUTRITION', 'false').lower() in ['true', '1']
 
     # SQLAlchemy config
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -20,3 +20,16 @@ class TasteSchema(BaseDto):
     taste_name = fields.Str()
     taste_value = fields.Number()
     description = fields.Str()
+
+
+class NutritionDto:
+    def __init__(self, nutrition_name: str, nutrition_value: float, nutrition_unit: str):
+        self.nutrition_name = nutrition_name
+        self.nutrition_value = nutrition_value
+        self.nutrition_unit = nutrition_unit
+
+
+class NutritionSchema(BaseDto):
+    nutrition_name = fields.Str()
+    nutrition_value = fields.Number()
+    nutrition_unit = fields.Str()
