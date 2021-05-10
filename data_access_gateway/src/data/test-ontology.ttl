@@ -1,0 +1,56 @@
+michiel:IngredientTable a table:DataTableClass;
+	table:hasColumnProperty michiel:ing_ingredient, 
+                                 michiel:ing_amount, 
+                                 michiel:ing_unit.
+
+michiel:ing_ingredient a table:ColumnProperty;
+	rdfs:domain michiel:IngredientTable; //redundant!!!
+	rdfs:range xsd:string;
+	table:hasColumnName "Ingredient".
+ 
+michiel:ing_amount a table:ColumnProperty;
+	rdfs:domain michiel:IngredientsTable; //redundant!!!
+	rdfs:range xsd:integer;
+	table:hasColumnName "Amount".
+
+michiel:ing_unit a table:ColumnProperty;
+	rdfs:domain michiel:IngredientsTable; //redundant!!!
+	rdfs:range xsd:string;
+	table:hasColumnName "Unit".
+
+michiel:TasteTable a model:DataTableClass;
+	table:hasColumnProperty michiel:tst_taste, michiel:tst_value.
+
+michiel:tst_taste a table:ColumnProperty;
+	rdfs:domain michiel:TasteTable; //redundant!
+	rdfs:range xsd:string;
+	table:hasColumnName "Taste".
+
+michiel:tst_value a table:ColumnProperty;
+	rdfs:domain michiel:TasteTable; // redundant!
+	rdfs:range xsd:double;
+	table:hasColumnName "Value".
+
+
+
+michiel:ingredient a owl:ObjectProperty;
+	rdfs:domain michiel:IngredientTable;
+	rdfs:range foodsRUs:Foods.
+
+[owl:pathProperty
+        (
+                michiel:ing_ingredient
+                [owl:inversePropertyOf skos:prefLabel] 
+        )] rdfs:subPropertyOf owl:ingedient.
+
+
+#I am just faking this: the idea is that  michiel:amount is the "arithmetic" product #of unit and value (so it is OK to scale the amount with a factor (1/1000) if we scale #the unit from stuff to kilostuff ) 
+
+michiel:amount a owl:ObjectProperty;
+	rdfs:domain michiel:IngredientTable
+	rdfs:range om2:Quantity.
+
+[om2:quantityUnitProductProperty (
+	       michiel:ing_value 
+	       [owl:PathProperty (michiel:ing_unit om2:isUnitNameOf)]
+               )] rdfs:subPropertyOf michiel:amount.

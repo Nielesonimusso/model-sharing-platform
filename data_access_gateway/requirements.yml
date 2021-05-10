@@ -1,0 +1,12 @@
+name: data-access-gateway
+channels:
+  - defaults
+dependencies:
+  - pip=20.0.2
+  - python=3.8.2
+  - pip:
+    - flask==1.1.1
+    - flask-sqlalchemy==2.4.1
+    - marshmallow==3.5.1
+    - psycopg2-binary==2.8.4
+    - sqlalchemy==1.3.15
