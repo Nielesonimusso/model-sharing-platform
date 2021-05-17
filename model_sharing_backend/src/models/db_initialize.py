@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import bcrypt
+import bcrypt, uuid
 
 from common_data_access.db_initialize import BaseDbInitialize
 from .company import Company
@@ -38,37 +38,44 @@ class ModelDbInitialize(BaseDbInitialize):
         u1, u2, u3, u4, tu5, tu6, tu7 = 'hossain', 'johndoe', 'janedoe', 'admin', 'test1_uni', 'test2_tue', 'test3_tue'
         if User.query.filter(User.username == u1).count() == 0:
             user = User(username=u1, full_name='Hossain Muctadir', email='h.m.muctadir@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue)
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue, 
+                        api_key=password.decode('utf-8')+u1)
             user.save()
 
         if User.query.filter(User.username == u2).count() == 0:
             user = User(username=u2, full_name='John Doe', email='johndoe@unilever.com',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_unilever)
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_unilever, 
+                        api_key=password.decode('utf-8')+u2)
             user.save()
 
         if User.query.filter(User.username == u3).count() == 0:
             user = User(username=u3, full_name='Jane Doe', email='janedoe@unilever.com',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_unilever)
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_unilever, 
+                        api_key=password.decode('utf-8')+u3)
             user.save()
 
         if User.query.filter(User.username == u4).count() == 0:
             user = User(username=u4, full_name='MR Admin', email='admin@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue)
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue, 
+                        api_key=password.decode('utf-8')+u4)
             user.save()
 
         if User.query.filter(User.username == tu5).count() == 0:
             user = User(username=tu5, full_name='MR TEST1', email='test1@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_1)
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_1, 
+                        api_key=password.decode('utf-8')+tu5)
             user.save()
 
         if User.query.filter(User.username == tu6).count() == 0:
             user = User(username=tu6, full_name='MR TEST 2', email='test2@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_2)
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_2, 
+                        api_key=password.decode('utf-8')+tu6)
             user.save()
 
         if User.query.filter(User.username == tu7).count() == 0:
             user = User(username=tu7, full_name='MR TEST 3', email='test2@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_2)
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_2, 
+                        api_key=password.decode('utf-8')+tu7)
             user.save()
 
         #

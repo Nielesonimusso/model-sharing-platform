@@ -25,13 +25,12 @@ class IngredientProperty:
 
 
 class DataSource:
-    def __init__(self, data_path, ontology_path, column_types, name, ontology_prefix):
+    def __init__(self, data_path, ontology_path, column_types, name):
         self.data_path = data_path
         self.ontology_path = ontology_path
         self.column_types = column_types
 
         self.name = name
-        self.ontology_prefix = ontology_prefix
 
     def get_field_names(self) -> List[str]:
         fields = list()
@@ -65,23 +64,23 @@ class DataSource:
         field_names = self.get_field_names()
         field_types = self.get_column_types()
 
-        prefix_def = f"""@prefix table:urn:....
-@prefix {self.ontology_prefix}:urn:....
+        prefix_def = f"""@prefix table:urn:... .
+@prefix : <#>
 
 """
 
         table_def = f"""### Representation Model ###
 
-{self.ontology_prefix}:{self.name}Table a table:DataTableClass;
+:{self.name}Table a table:DataTableClass;
 """
         table_col_def = ";\n".join(
-            [f"   table:hasColumnProperty {self.ontology_prefix}:{field_name}"
+            [f"   table:hasColumnProperty :{field_name}"
                  for field_name in field_names]) + """.
 
 """
 
-        cols_defs = "".join([f"""{self.ontology_prefix}:{col_name} a table:ColumnProperty
-    rdfs:domain {self.ontology_prefix}:{self.name};
+        cols_defs = "".join([f""":{col_name} a table:ColumnProperty
+    rdfs:domain :{self.name};
     rdfs:range {self._column_type_mapping(col_type)};
     table:hasColumnName \"{col_name}\".
 
@@ -103,10 +102,9 @@ def get_data_sources(app=None) -> Dict[str, DataSource]:
         data_source_paths = app.config['DATA_SOURCE_FILE_PATHS']
         all_column_types = app.config['COLUMN_TYPES']
         ontology_path = app.config['ONTOLOGY_FILE_PATH']
-        ontology_prefix = app.config['ONTOLOGY_PREFIX']
         for data_source_path, column_types in zip(data_source_paths, all_column_types):
             name = splitext(basename(data_source_path))[0]
             print(name)
             __ds__[name] = DataSource(data_source_path, ontology_path, 
-                column_types, name, ontology_prefix)
+                column_types, name)
     return __ds__
