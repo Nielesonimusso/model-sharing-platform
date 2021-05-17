@@ -3,11 +3,12 @@ import sys
 BACKEND = 'backend'
 GATEWAY = 'gateway'
 INGREDIENT_SERVICE = 'ingredient_service'
+DATA_GATEWAY = 'data_access_gateway'
 
 
 def print_usage():
     print(f'Usage: python {sys.argv[0]} <application name> [--test]')
-    print(f'Applications: {GATEWAY} or {BACKEND} or {INGREDIENT_SERVICE}')
+    print(f'Applications: {GATEWAY} or {BACKEND} or {INGREDIENT_SERVICE} or {DATA_GATEWAY}')
 
 
 def __is_test():
@@ -32,6 +33,11 @@ if __name__ == '__main__':
         from ingredient_data_service.run import run_ingredient_service
 
         run_ingredient_service()
+
+    elif sys.argv[1] == DATA_GATEWAY:
+        from data_access_gateway.run import run_data_access_gateway
+
+        run_data_access_gateway()
 
     else:
         print_usage()

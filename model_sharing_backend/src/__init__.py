@@ -57,6 +57,7 @@ def register_blueprints(app):
     from model_sharing_backend.src.routes.user_routes import user_bp
     from model_sharing_backend.src.routes.authorization import auth_bp
     from model_sharing_backend.src.routes.company_routes import company_bp
+    from model_sharing_backend.src.routes.data_source_routes import data_source_bp
 
     app.register_blueprint(products_bp, url_prefix='/api')
     app.register_blueprint(model_bp, url_prefix='/api')
@@ -64,6 +65,7 @@ def register_blueprints(app):
     app.register_blueprint(simulation_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(company_bp, url_prefix='/api')
+    app.register_blueprint(data_source_bp, url_prefix='/api')
 
 
 def configure_response(app: Flask):

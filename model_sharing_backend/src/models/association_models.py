@@ -9,3 +9,10 @@ model_simulation_association = _db.Table('model_simulation_association', _db.Mod
                                                     _db.ForeignKey('simulations.id')),
                                          _db.Column('model_infos_id', UUID(as_uuid=True),
                                                     _db.ForeignKey('model_infos.id')))
+
+data_source_simulation_association = _db.Table('data_source_simulation_association',
+                                        _db.Model.metadata,
+                                        _db.Column('simulations_id', UUID(as_uuid=True), 
+                                                    _db.ForeignKey('simulations.id')), 
+                                        _db.Column('data_source_infos_id', UUID(as_uuid=True),
+                                                    _db.ForeignKey('data_source_infos.id')))

@@ -7,7 +7,11 @@ class BaseConfiguration():
     # DATA_SOURCE_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/IngredientDatabase_2020m02d21.csv')
     DATA_SOURCE_FILE_PATHS = [os.path.join(PACKAGE_PATH, 'data/IngredientDatabase.csv'), 
         os.path.join(PACKAGE_PATH, 'data/IngredientPropertyDatabase.csv')]
-    ONTOLOGY_FILE_PATHS = [os.path.join(PACKAGE_PATH, 'data/test-ontology.ttl')] * 2
+    COLUMN_TYPES = [dict(Ingredient=str, IngredientCode=str), 
+        dict(Ingredient=str,IngredientCode=str,IngredientProperty=str,
+            ValueText=str,ValueNum=float,UnitOfMeasure=str)]
+    ONTOLOGY_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/test-ontology.ttl')
+    ONTOLOGY_PREFIX = "IngredientSource"
 
     # flask config
     TESTING = False

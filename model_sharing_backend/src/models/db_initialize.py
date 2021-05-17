@@ -8,6 +8,7 @@ from .food_product_models import FoodProduct, Ingredient, FoodProductProcessingS
 from .model_info import ModelInfo, ModelPermission, ModelPermissionTypes
 from .simulation import Simulation
 from .user import User
+from .data_source_info import DataSourceInfo, DataSourcePermission, DataSourcePermissionTypes
 
 
 class ModelDbInitialize(BaseDbInitialize):
