@@ -1,6 +1,7 @@
 import os
 import requests
-from functools import reduce
+from functools import partial
+import atexit
 
 from flask import Flask
 
@@ -16,6 +17,7 @@ def create_app() -> Flask:
 
     get_data_sources(app)
     register_data_sources(app)
+    atexit.register(partial(deregister_on_exit, app))
 
     setup_cli(app)
 
@@ -42,15 +44,15 @@ def select_configuration():
     print(f'Starting with configuration {conf.__name__}')
     return conf
 
-def register_data_sources(app):
-
-    # gather auth_token based on api key
+def api_authorization_header(app: Flask) -> dict:
     api_token_endpoint = app.config['INOF_BASE'] + 'api_token'
     api_key = app.config['API_TOKEN']
     auth_token = requests.post(api_token_endpoint, json=dict(api_key=api_key)).json()
-    print(auth_token)
+    return dict(authorization="Bearer "+auth_token)
 
-    auth_token_header = dict(authorization="Bearer "+auth_token)
+def register_data_sources(app: Flask):
+
+    auth_token_header = api_authorization_header(app)
     application_base = app.config['APPLICATION_BASE']
 
     # one request for every data source
@@ -60,23 +62,42 @@ def register_data_sources(app):
     api_register_endpoint = inof_base + 'data_source'
 
     data_sources = get_data_sources()
-    for data_source in data_sources.keys():
+    for data_source_name, data_source in data_sources.items():
 
         check = requests.get(api_check_endpoint, headers=auth_token_header).json()
-        existing = [a for a in check if a["gateway_url"] == application_base + data_source + '/']
+        existing = [a for a in check if a["gateway_url"] == application_base + data_source_name + '/']
 
         data_source_info = dict(
-                    name = data_source,
+                    name = data_source_name,
                     price = price,
                     is_connected = True,
-                    gateway_url = application_base + data_source + '/'
+                    gateway_url = application_base + data_source_name + '/'
         )
 
         if len(existing) > 0:
             print(requests.put(api_register_endpoint + '/' + existing[0]["id"], json = data_source_info, 
                 headers=auth_token_header).json())
-            print(f'updated {data_source}')
+            data_source.id = existing[0]["id"]
+            print(f'updated {data_source_name}')
         else:
-            print(requests.post(api_register_endpoint, json = data_source_info, 
+            print(post_result := requests.post(api_register_endpoint, json = data_source_info, 
                 headers=auth_token_header).json())
-            print(f'registered {data_source}')
+            data_source.id = post_result["id"]
+            print(f'registered {data_source_name}')
+
+def deregister_on_exit(app: Flask):
+
+    auth_token_header = api_authorization_header(app)
+
+    api_update_endpoint = app.config['INOF_BASE'] + 'data_source/'
+    price = app.config['ACCESS_PRICE']
+    application_base = app.config['APPLICATION_BASE']
+
+    data_sources = get_data_sources()
+    for data_source_name, data_source in data_sources.items():
+        print(requests.put(api_update_endpoint + data_source.id, json = dict(
+            name = data_source_name,
+            price = price,
+            is_connected = False,
+            gateway_url = application_base + data_source_name + '/'
+        ), headers=auth_token_header).json())

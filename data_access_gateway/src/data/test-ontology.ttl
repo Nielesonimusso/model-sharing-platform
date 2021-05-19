@@ -1,38 +1,3 @@
-michiel:IngredientTable a table:DataTableClass;
-	table:hasColumnProperty michiel:ing_ingredient, 
-                                 michiel:ing_amount, 
-                                 michiel:ing_unit.
-
-michiel:ing_ingredient a table:ColumnProperty;
-	rdfs:domain michiel:IngredientTable; //redundant!!!
-	rdfs:range xsd:string;
-	table:hasColumnName "Ingredient".
- 
-michiel:ing_amount a table:ColumnProperty;
-	rdfs:domain michiel:IngredientsTable; //redundant!!!
-	rdfs:range xsd:integer;
-	table:hasColumnName "Amount".
-
-michiel:ing_unit a table:ColumnProperty;
-	rdfs:domain michiel:IngredientsTable; //redundant!!!
-	rdfs:range xsd:string;
-	table:hasColumnName "Unit".
-
-michiel:TasteTable a model:DataTableClass;
-	table:hasColumnProperty michiel:tst_taste, michiel:tst_value.
-
-michiel:tst_taste a table:ColumnProperty;
-	rdfs:domain michiel:TasteTable; //redundant!
-	rdfs:range xsd:string;
-	table:hasColumnName "Taste".
-
-michiel:tst_value a table:ColumnProperty;
-	rdfs:domain michiel:TasteTable; // redundant!
-	rdfs:range xsd:double;
-	table:hasColumnName "Value".
-
-
-
 michiel:ingredient a owl:ObjectProperty;
 	rdfs:domain michiel:IngredientTable;
 	rdfs:range foodsRUs:Foods.

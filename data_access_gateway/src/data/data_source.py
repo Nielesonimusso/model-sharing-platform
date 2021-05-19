@@ -4,26 +4,6 @@ import csv
 from flask import Flask
 from os.path import splitext, basename
 
-class IngredientProperty:
-
-    def __init__(self, ingredient: str, ingredient_code: str, ingredient_property: str, 
-            value_text: str, value_num: Union[int, float], unit_of_measure: str):
-        self.ingredient = ingredient
-        self.ingredient_code = ingredient_code
-        self.ingredient_property = ingredient_property
-        self.value_text = value_text
-        self.value_num = value_num
-        self.unit_of_measure = unit_of_measure
-
-    def __eq__(self, other):
-        return (self.ingredient == other.ingredient and 
-            self.ingredient_code == other.ingredient_code and
-            self.ingredient_property == other.ingredient_property and
-            self.value_text == other.value_text and
-            (self.value_num - other.value_num <= 0.0001) and
-            self.unit_of_measure == other.unit_of_measure)
-
-
 class DataSource:
     def __init__(self, data_path, ontology_path, column_types, name):
         self.data_path = data_path
@@ -31,6 +11,7 @@ class DataSource:
         self.column_types = column_types
 
         self.name = name
+        self.id = None
 
     def get_field_names(self) -> List[str]:
         fields = list()
