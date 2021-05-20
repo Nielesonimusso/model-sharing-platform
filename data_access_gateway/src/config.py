@@ -12,7 +12,7 @@ class BaseConfiguration():
             ValueText=str,ValueNum=float,UnitOfMeasure=str)]
     ONTOLOGY_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/test-ontology.ttl')
     # APPLICATION_BASE = 'http://data-access-gateway:5001/api/'
-    APPLICATION_BASE = 'http://localhost:5002/api/'
+    APPLICATION_BASE = 'http://localhost:5020/api/'
     ACCESS_PRICE = 7
 
     # flask config
@@ -22,7 +22,7 @@ class BaseConfiguration():
     ENV = 'development'
 
     # Internet of Food config
-    #INOF_BASE = 'http://model-sharing-backend:5000/api/'
+    #INOF_BASE = 'http://model-sharing-backend:5020/api/'
     INOF_BASE = 'http://localhost:81/api/'
     API_TOKEN = 'inof1234hossain' # replace with api token of user
 
@@ -40,7 +40,7 @@ class TestConfiguration(BaseConfiguration):
     
     # Internet of Food config
     INOF_BASE = 'http://localhost:81/api/'
-    APPLICATION_BASE = 'http://localhost:5002/api/'
+    APPLICATION_BASE = 'http://localhost:5020/api/'
 
 
 class DockerDeployConfiguration(BaseConfiguration):

@@ -17,6 +17,11 @@ def create_app() -> Flask:
 
     get_data_sources(app)
     register_data_sources(app)
+
+    # enable CORS
+    from flask_cors import CORS
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+
     atexit.register(partial(deregister_on_exit, app))
 
     setup_cli(app)
