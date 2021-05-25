@@ -21,6 +21,7 @@ class User(BaseModel):
     password_hash = _db.Column(_db.LargeBinary, nullable=False)
     company_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('companies.id'), nullable=False)
     company = _db.relationship('Company')
+    api_key = _db.Column(_db.String, nullable=False)
 
     def __repr__(self):
         return f'<USER {self.__hash__()}> {self.full_name} ({self.username})'
@@ -41,6 +42,7 @@ class UserProfileDtoSchema(BaseDto):
     full_name = fields.String(required=True, validate=[NotEmptyString()])
     company_id = fields.UUID(required=True)
     company = fields.Nested(CompanyDtoSchema, dump_only=True)
+    api_key = fields.String(dump_only=True)
 
 
 class UserRegistrationDtoSchema(UserProfileDtoSchema):
@@ -59,6 +61,10 @@ class UserProfileUpdateDtoSchema(BaseDto):
 class UserLoginDtoSchema(BaseDto):
     username = fields.String()
     password = fields.String()
+
+
+class UserAPIDtoSchema(BaseDto):
+    api_key = fields.String()
 
 
 UserBasicReadonlyInfo = fields.Nested(UserProfileDtoSchema, only=('username', 'full_name'), dump_only=True)

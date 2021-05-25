@@ -100,7 +100,7 @@ def register_user():
     if user_with_same_email is None and user_with_same_username is None and user_reg.password:
         user = User(username=user_reg.username, full_name=user_reg.full_name, email=user_reg.email,
                     password_hash=bcrypt.hashpw(user_reg.password.encode(), bcrypt.gensalt()),
-                    company_id=user_reg.company_id)
+                    company_id=user_reg.company_id, api_key=str(uuid.uuid4()))
         user.add()
         return jsonify(), 200
     else:
