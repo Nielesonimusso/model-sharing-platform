@@ -1,3 +1,4 @@
+
 from enum import Enum
 
 from marshmallow import Schema, fields, post_load, validate, ValidationError
@@ -43,19 +44,10 @@ class ModelRunStatus(Enum):
     UNREACHABLE = 'unreachable'
 
 
-class ModelRunParameterSchema(BaseDto):
-    name = fields.Str(required=True)
-    amount_unit = fields.Str(required=True)
-    amount = fields.Number(required=True)
-    company_code = fields.Str()
-    standard_code = fields.Str()
-
-
 class RunModelDtoSchema(BaseDto):
     simulation_id = fields.Str()
-    created_on = fields.DateTime()
-    created_by = fields.Str()
-    data = fields.List(fields.Nested(ModelRunParameterSchema))
+    # created_on = fields.DateTime()
+    # created_by = fields.Str()
 
 
 class ModelRunStatusDtoSchema(BaseDto):

@@ -23,9 +23,13 @@ def create_app() -> Flask:
     from .routes import routes_blueprint
     app.register_blueprint(routes_blueprint, url_prefix='/api')
     setup_cli(app)
+    # seed_db_init()
     setup_global_error_handlers(app)
     return app
 
+def seed_db_init():
+    from .db import GatewayDbInitialize
+    GatewayDbInitialize().create_database(True)
 
 def setup_cli(app: Flask):
     """Hookup methods with custom flask cli commands. Type ``flask --help`` to see these options."""
@@ -35,6 +39,7 @@ def setup_cli(app: Flask):
         """Initialized the gateway database."""
         from .db import GatewayDbInitialize
         GatewayDbInitialize().create_database(True)
+
 
 
 def setup_global_error_handlers(app: Flask):

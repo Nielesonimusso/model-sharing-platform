@@ -18,6 +18,6 @@ class SimulationRun(BaseModel):
     parameters = _db.Column(_db.PickleType, nullable=False)
     result = _db.Column(_db.PickleType)
     submitted_on = _db.Column(_db.DateTime, nullable=False)
-    submitted_by = _db.Column(_db.String, nullable=False)
+    # submitted_by = _db.Column(_db.String, nullable=False)
     completed_on = _db.Column(_db.DateTime)
     status = _db.Column(_db.Enum(ModelRunStatus))

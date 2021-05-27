@@ -6,11 +6,13 @@ class BaseConfiguration():
     PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))
     INGREDIENT_SERVICE_URL = 'http://localhost:5002'
     TASTES_TO_CALCULATE = os.getenv('TASTES_TO_CALCULATE', 'sweetness,sourness,saltiness,tomato taste').split(',')
-    CALCULATE_NUTRITION = os.getenv('CALCULATE_NUTRITION', 'false').lower() in ['true', '1']
+    MODEL = os.getenv('MODEL', 'taste').lower() # ['taste', 'nutrition'] ['pasteurization', 'shelflife', 'calibration', 'dropletsize']
 
     # SQLAlchemy config
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     SQLALCHEMY_DATABASE_URI = 'postgresql://admin:admin@localhost:5432/gateway_db_test'
+    # SQLALCHEMY_DATABASE_URI = 'postgresql://admin:admin@db-container:5432/gateway_db_test'
     SQLALCHEMY_ECHO = False
 
     # flask config
