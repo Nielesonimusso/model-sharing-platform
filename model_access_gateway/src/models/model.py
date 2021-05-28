@@ -102,4 +102,7 @@ class Model(metaclass=ABCMeta):
             og.add((ROOT[type(self).__name__], SERVICE.hasInputArgument, ROOT["input__"+table_name]))
         og.add((ROOT[type(self).__name__], SERVICE.hasOutputArgument, ROOT["output__"+output_table_name]))
         
+        # TODO load and add external ontology definition
+        # ... or add external data source references + value*unit definitions to code
+
         return og.serialize(format='turtle')

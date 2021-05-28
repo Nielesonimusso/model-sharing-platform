@@ -1,8 +1,11 @@
-from typing import List, Union, Tuple, Dict
+from typing import List, Tuple, Dict
 from functools import reduce
 import csv
-from flask import Flask
 from os.path import splitext, basename
+
+from rdflib import Namespace, RDF, RDFS, XSD
+from rdflib.term import URIRef, Literal
+from rdflib.graph import Graph
 
 class DataSource:
     def __init__(self, data_path, ontology_path, column_types, name):
@@ -23,8 +26,8 @@ class DataSource:
     def get_column_types(self) -> Dict[str, type]:
         return self.column_types
 
-    def _column_type_mapping(self, type):
-        return {str: "xsd:string", float: "xsd:double"}[type]
+    def _column_type_mapping(self, type) -> URIRef:
+        return XSD[type.__name__.lower()]
 
     def get_rows(self, columns: Tuple[str, ...], unique: bool) -> List[dict]:
 
@@ -41,37 +44,31 @@ class DataSource:
         return rows
 
     def get_ontology(self) -> str:
+        ROOT = Namespace('#')
+        TABLE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Table/')
+
+        og = Graph()
+        og.namespace_manager.bind('', ROOT)
+        og.namespace_manager.bind('table', TABLE)
 
         field_names = self.get_field_names()
         field_types = self.get_column_types()
 
-        prefix_def = f"""@prefix table:urn:... .
-@prefix : <#>
+        og.add((ROOT[self.name], RDF.type, TABLE.DataTableClass))
+        for field_name in field_names:
+            og.add((ROOT[self.name], TABLE.hasColumnProperty, ROOT[field_name]))
 
-"""
+        for col_name, col_type in field_types.items():
+            og.add((ROOT[col_name], RDF.type, TABLE.ColumnProperty))
+            og.add((ROOT[col_name], RDFS.domain, ROOT[self.name]))
+            og.add((ROOT[col_name], RDFS.range, self._column_type_mapping(col_type)))
+            og.add((ROOT[col_name], TABLE.hasColumnName, Literal(col_name)))
 
-        table_def = f"""### Representation Model ###
+        # TODO load and add external ontology definition
+        # ... or add external data source references + value*unit definitions to code or config
+        #       open(self.ontology_path, 'rt').readlines())])
 
-:{self.name}Table a table:DataTableClass;
-"""
-        table_col_def = ";\n".join(
-            [f"   table:hasColumnProperty :{field_name}"
-                 for field_name in field_names]) + """.
-
-"""
-
-        cols_defs = "".join([f""":{col_name} a table:ColumnProperty
-    rdfs:domain :{self.name};
-    rdfs:range {self._column_type_mapping(col_type)};
-    table:hasColumnName \"{col_name}\".
-
-""" for col_name, col_type in field_types.items()])
-
-        return "".join([prefix_def, table_def, table_col_def, cols_defs, 
-        """### Conceptual Model ###
-
-""",
-            "".join(open(self.ontology_path, 'rt').readlines())])
+        return og.serialize(format='turtle')
 
 
 def get_data_sources(app=None) -> Dict[str, DataSource]:

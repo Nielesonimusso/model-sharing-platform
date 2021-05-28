@@ -20,8 +20,8 @@ class DosageDto(BaseDto):
 
 # input schema
 class NutritionInputDto(BaseDto):
-    ingredients = fields.Nested(IngredientDto, many=True)
-    dosage = fields.Nested(DosageDto, many=True)
+    IngredientsTable = fields.Nested(IngredientDto, many=True)
+    DosageTable = fields.Nested(DosageDto, many=True)
 
 # output schema
 class NutritionSchema(BaseDto):
