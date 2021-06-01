@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import partial
 from typing import Any, Dict
 
 from flask import request, current_app, make_response
@@ -8,10 +9,12 @@ from marshmallow import fields
 from common_data_access.dtos import ModelRunStatus, ModelRunStatusDtoSchema, \
     ModelResultDtoSchema, RunModelDtoSchema
 from common_data_access.json_extension import get_json
+from model_access_gateway.run import shared_scheduler
 from model_access_gateway.src.models.model import Model
 from model_access_gateway.src.models.nutrition_model import NutritionModel
 from .db import SimulationRun
 from .models.tomato_soup_taste_model import TasteModel
+from concurrent.futures import Future
 
 routes_blueprint = Blueprint('gateway', __name__)
 
@@ -34,6 +37,7 @@ def get_model(app) -> Model:
     model: Model = models.get(app.config['MODEL'])
 
     return model
+    
 
 @routes_blueprint.route('/ontology.ttl', methods=['GET'])
 def get_ontology() -> str:
@@ -48,8 +52,12 @@ def run_model():
 
     model: Model = get_model(current_app)
 
-    input_dto = type(f'Run{type(model)}DtoSchema', (RunModelDtoSchema, ), dict(
-        data = fields.Nested(model.input_dto)
+    input_dto = type(f'Run{type(model).__name__}DtoSchema', (RunModelDtoSchema, ), dict(
+        data = fields.Nested(model.input_dto),
+        Meta = type(f'Run{type(model).__name__}DtoSchemaMeta',
+            (getattr(RunModelDtoSchema, "Meta", object), ), dict(
+                fields=('simulation_id','data',)
+            ))
     ))
 
     model_run_request = input_dto().load(request.json)
@@ -58,11 +66,18 @@ def run_model():
                                    status=ModelRunStatus.SUBMITTED,
                                    parameters=request.json).save()
 
-    simulation_run.result = model.output_dto(many=True).dump(model.run_model(model_run_request.data))
+    def handle_result(run_id, future: Future):
 
-    simulation_run.completed_on = datetime.utcnow()
-    simulation_run.status = ModelRunStatus.SUCCESS
-    simulation_run.save()
+        sr = SimulationRun.query.get(run_id)
+        result = future.result()
+        sr.result = model.output_dto(many=True).dump(result)
+
+        sr.completed_on = datetime.utcnow()
+        sr.status = ModelRunStatus.SUCCESS
+        sr.save()
+
+    shared_scheduler().submit(model.run_model, model_run_request.data).\
+        add_done_callback(partial(handle_result, simulation_run.id))
 
     return get_json({
         'created_on': simulation_run.submitted_on,

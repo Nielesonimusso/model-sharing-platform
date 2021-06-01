@@ -40,15 +40,15 @@ class TasteModel(Model):
         return TasteOutputDto
 
     def run_model(self, input) -> list:
-        ingredients = [get_ingredient_properties(i.company_code) for i in input.ingredients]
+        ingredients = [get_ingredient_properties(i.company_code) for i in input.IngredientsTable]
 
 #def calculate_taste(recipe, ingredients: List, tastes_to_calculate: List[str] = None) -> List[TasteDto]:
         tastes_to_calculate = self.tastes_to_calculate or ['sweetness', 'sourness', 'saltiness', 'tomato taste']
         product_density = 1
-        water_to_add = 1000 - sum(ing.amount for ing in input.ingredients) * product_density
+        water_to_add = 1000 - sum(ing.amount for ing in input.IngredientsTable) * product_density
         total_ingredient_properties = dict()
-        for ing in input.ingredients:
-            ing.amount = ing.amount * input.dosage[0].dosage / 100
+        for ing in input.IngredientsTable:
+            ing.amount = ing.amount * input.DosageTable[0].dosage / 100
             ing.amount_unit = 'gram'
 
             ingredient = next(filter(lambda i: i.company_code == ing.company_code, ingredients), None)
@@ -59,7 +59,7 @@ class TasteModel(Model):
                 prp_in_recipe = ing.amount * prp.value / 100
                 total_ingredient_properties[prp.name] = total_ingredient_properties.get(prp.name, 0) + prp_in_recipe
 
-        if sum(a for a in total_ingredient_properties.values()) != input.dosage[0].dosage:
+        if sum(a for a in total_ingredient_properties.values()) != input.DosageTable[0].dosage:
             print('dosage value does not match with calculated dosage')
 
         tastes = []

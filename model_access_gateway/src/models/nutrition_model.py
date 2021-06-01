@@ -7,8 +7,6 @@ from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
 from model_access_gateway.src.models.model import Model
 
-from flask import current_app
-
 class IngredientDto(BaseDto):
     name = fields.Str(required=True)
     amount = fields.Number(required=True) # mass(?)-percent
@@ -39,15 +37,13 @@ class NutritionModel(Model):
         return NutritionSchema
 
     def run_model(self, input) -> list:
-        ingredients = [get_ingredient_properties(i.company_code) for i in input.ingredients]
+        ingredients = [get_ingredient_properties(i.company_code) for i in input.IngredientsTable]
     
 # def calculate_nutrition(recipe, ingredients: List) -> list:
-        current_app.logger.info(input)
-        current_app.logger.info(ingredients)
 
         total_ingredient_properties = dict()
-        for ing in input.ingredients:
-            ing.amount = ing.amount * input.dosage[0].dosage / 100
+        for ing in input.IngredientsTable:
+            ing.amount = ing.amount * input.DosageTable[0].dosage / 100
             ing.amount_unit = 'gram'
 
             ingredient = next(filter(lambda i: i.company_code == ing.company_code, ingredients), None)
@@ -58,10 +54,9 @@ class NutritionModel(Model):
                 prp_in_recipe = ing.amount * prp.value / 100
                 total_ingredient_properties[prp.name] = total_ingredient_properties.get(prp.name, 0) + prp_in_recipe
 
-        if sum(a for a in total_ingredient_properties.values()) != input.dosage[0].dosage:
+        if sum(a for a in total_ingredient_properties.values()) != input.DosageTable[0].dosage:
             print('dosage value does not match with calculated dosage')
 
-        current_app.logger.info(total_ingredient_properties)
 
         relevant_ingredients = [
             total_ingredient_properties.get('Sucrose', 0),
@@ -78,7 +73,6 @@ class NutritionModel(Model):
             total_ingredient_properties.get('Carbohydrates', 0),
             ]
 
-        current_app.logger.info(json.dumps(relevant_ingredients))
 
         nutrition_table = {
             'Energy':        [4, 4, 4, 4, 4, 0, 4, 4, 4, 4, 9, 4],
@@ -90,7 +84,6 @@ class NutritionModel(Model):
             'Water':         [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
         }
 
-        current_app.logger.info(json.dumps(nutrition_table))
 
         nutritions = []
         for nutrition_name, table in nutrition_table.items():
