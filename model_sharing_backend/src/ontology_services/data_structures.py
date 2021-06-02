@@ -10,6 +10,7 @@ import rdflib
 @dataclass
 class ColumnDefinition:
     uri: str
+    name: str
     datatype: str
     unit: str = None
     value_source: str = None
@@ -35,9 +36,10 @@ class ArgumentDefinition:
         tableColumns = []
         for column_node in graph.objects(table_node, TABLE.hasColumnProperty):
             columnUri = str(column_node)
+            columnName = graph.value(subject=column_node, predicate=TABLE.hasColumnName)
             columnDatatype = next(graph.objects(column_node, rdflib.RDFS.range))
             #TODO columnUnit and columnValue_source
-            tableColumns.append(ColumnDefinition(columnUri, columnDatatype))
+            tableColumns.append(ColumnDefinition(columnUri, columnName, columnDatatype))
 
         return ArgumentDefinition(argumentUri, argumentName, argumentTypeUri, tableColumns)
 
@@ -80,6 +82,7 @@ class DataclassSchema(Schema):
 
 class ColumnDefinitionSchema(DataclassSchema):
     uri = fields.String(required=True)
+    name = fields.String(required=True)
     datatype = fields.String(required=True)
     unit = fields.String(missing=None)
     value_source = fields.String(missing=None)
