@@ -3,6 +3,8 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
 from marshmallow import ValidationError
+import rdflib
+from rdflib.term import URIRef
 from werkzeug.exceptions import abort
 
 from common_data_access.json_extension import get_json
@@ -12,6 +14,7 @@ from model_sharing_backend.src.graph_db.queries.add_model import add_model
 from model_sharing_backend.src.graph_db.queries.query_runner import SparQlRunner
 from model_sharing_backend.src.models.model_info import ModelInfo, ModelPermission, ModelPermissionDtoSchema, \
     ModelPermissionTypes, ModelInfoWithParametersDtoSchema
+from model_sharing_backend.src.ontology_services.data_structures import InterfaceDefinition, InterfaceDefinitionSchema
 
 model_bp = Blueprint('Models', __name__)
 
@@ -39,17 +42,17 @@ def create_model():
             schema:
                 $ref: '#/definitions/ModelInfoWithParametersDto'
     """
-    model_info_with_params = ModelInfoWithParametersDtoSchema().load(request.json)
-    graph_db_model = add_model(model_info_with_params.name, model_info_with_params.inputs,
-                               model_info_with_params.outputs, SparQlRunner())
+    # model_info_with_params = ModelInfoWithParametersDtoSchema().load(request.json)
+    # graph_db_model = add_model(model_info_with_params.name, model_info_with_params.inputs,
+                            #    model_info_with_params.outputs, SparQlRunner())
 
     model_info = ModelInfo.ModelInfoDbSchema().load(request.json)
     model_info.owner = current_user.company
     model_info.created_on = datetime.utcnow()
     model_info.created_by = current_user
-    model_info.ontology_uri = graph_db_model.uri
+    # model_info.ontology_uri = graph_db_model.uri
     model_info.add()
-    return __create_model_info_with_param_json(model_info, graph_db_model), 201
+    return get_json(model_info, ModelInfo.ModelInfoDbSchema), 201
 
 
 @model_bp.route('/model/<model_id>', methods=['PUT'])
@@ -89,15 +92,15 @@ def update_model(model_id: str):
     model_info_db.description = model_info_new.description
     model_info_db.price = model_info_new.price
     model_info_db.is_connected = model_info_new.is_connected
+    model_info_db.ontology_uri = model_info_new.ontology_uri
     model_info_db.gateway_url = model_info_new.gateway_url
 
-    model_info_with_params = GraphDbModelSchema().load(request.json)
-    graph_db_model = add_model(model_info_with_params.name, model_info_with_params.inputs,
-                               model_info_with_params.outputs, SparQlRunner())
+    # model_info_with_params = GraphDbModelSchema().load(request.json)
+    # graph_db_model = add_model(model_info_with_params.name, model_info_with_params.inputs,
+                            #    model_info_with_params.outputs, SparQlRunner())
 
-    model_info_db.ontology_uri = graph_db_model.uri
     model_info_db = model_info_db.update()
-    return __create_model_info_with_param_json(model_info_db, graph_db_model)
+    return get_json(model_info_db, ModelInfo.ModelInfoDbSchema)
 
 
 @model_bp.route('/model/<model_id>', methods=['DELETE'])
@@ -199,9 +202,18 @@ def get_model(model_id: str):
         404:
             description: Model with specified id not found or not accessible by current user
     """
-    model_info = ModelInfo.query.get_accessible_or_404(current_user.company_id, model_id)
-    graph_db_model = query_model.get_model(model_info.ontology_uri, SparQlRunner())
-    return __create_model_info_with_param_json(model_info, graph_db_model)
+    model_info: ModelInfo = ModelInfo.query.get_accessible_or_404(current_user.company_id, model_id)
+    interface_info = InterfaceDefinition.from_graph(
+        rdflib.Graph().parse(location=model_info.gateway_url+"/api/ontology.ttl", format='turtle'),
+        URIRef(model_info.ontology_uri))
+
+    model_interface_info = ModelInfoWithParametersDtoSchema().dump(model_info)
+    model_interface_info.update(InterfaceDefinitionSchema().dump(interface_info))
+    if len(val_errors := ModelInfoWithParametersDtoSchema().validate(model_interface_info)) == 0:
+        return jsonify(model_interface_info)
+    else:
+        raise ValidationError(val_errors)
+    # graph_db_model = query_model.get_model(model_info.ontology_uri, SparQlRunner())
 
 
 @model_bp.route('/model/permissions/<model_id>', methods=['PUT'])
@@ -288,11 +300,11 @@ def get_model_permissions(model_id: str):
                     ModelPermissionDtoSchema)
 
 
-def __create_model_info_with_param_json(model_info: ModelInfo, model_graph_db: GraphDbModel):
-    model_info_dict = ModelInfo.ModelInfoDbSchema(context={'company_id': current_user.company.id}).dump(model_info)
-    model_with_params_dict = GraphDbModelSchema().dump(model_graph_db)
-    model_with_params_dict.update(model_info_dict)
-    if len(ModelInfoWithParametersDtoSchema().validate(model_with_params_dict)) == 0:
-        return jsonify(model_with_params_dict)
-    else:
-        raise ValidationError('model data is not correct')
+# def __create_model_info_with_param_json(model_info: ModelInfo, model_graph_db: GraphDbModel):
+#     model_info_dict = ModelInfo.ModelInfoDbSchema(context={'company_id': current_user.company.id}).dump(model_info)
+#     model_with_params_dict = GraphDbModelSchema().dump(model_graph_db)
+#     model_with_params_dict.update(model_info_dict)
+#     if len(ModelInfoWithParametersDtoSchema().validate(model_with_params_dict)) == 0:
+#         return jsonify(model_with_params_dict)
+#     else:
+#         raise ValidationError('model data is not correct')

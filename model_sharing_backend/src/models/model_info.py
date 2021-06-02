@@ -6,11 +6,11 @@ from sqlalchemy.dialects.postgresql import UUID
 from common_data_access.base_schema import DbSchema, BaseModel
 from common_data_access.db import create_db_connection
 from common_data_access.dtos import NotEmptyString
+from model_sharing_backend.src.ontology_services.data_structures import InterfaceDefinitionSchema
 from .association_models import model_simulation_association
 from .base_model import BaseModelWithOwnerAndCreator, BaseDbSchemaWithOwnerAndCreator, BasePermission, \
     BasePermissionDtoSchema
 from .query_classes.model_info_query_class import ModelInfoQuery
-from ..graph_db.model_data_structure import GraphDbModelSchema
 
 _db = create_db_connection()
 
@@ -70,6 +70,7 @@ class ModelInfo(BaseModelWithOwnerAndCreator):
         description = fields.Str()
         price = fields.Number()
         is_connected = fields.Bool()
+        ontology_uri = fields.Str(required=True)
         gateway_url = fields.Url(required=True, require_tld=False)
         use_count = fields.Method('model_usage_count', dump_only=True, default=0)
         can_execute = fields.Method('has_execute_permission', dump_only=True, default=False)
@@ -88,7 +89,7 @@ class ModelInfo(BaseModelWithOwnerAndCreator):
             super().__init__(ModelInfo, *args, **kwargs)
 
 
-class ModelInfoWithParametersDtoSchema(ModelInfo.ModelInfoDbSchema, GraphDbModelSchema):
+class ModelInfoWithParametersDtoSchema(ModelInfo.ModelInfoDbSchema, InterfaceDefinitionSchema):
 
     @post_load
     def _after_load(self, data, **kwargs):
