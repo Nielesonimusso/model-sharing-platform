@@ -1,19 +1,25 @@
 import os
-
+import json
 
 class BaseConfiguration():
     # application config
     PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))
-    # DATA_SOURCE_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/IngredientDatabase_2020m02d21.csv')
-    DATA_SOURCE_FILE_PATHS = [os.path.join(PACKAGE_PATH, 'data/IngredientDatabase.csv'), 
-        os.path.join(PACKAGE_PATH, 'data/IngredientPropertyDatabase.csv')]
-    COLUMN_TYPES = [dict(Ingredient=str, IngredientCode=str), 
-        dict(Ingredient=str,IngredientCode=str,IngredientProperty=str,
-            ValueText=str,ValueNum=float,UnitOfMeasure=str)]
-    ONTOLOGY_FILE_PATH = os.path.join(PACKAGE_PATH, 'data/test-ontology.ttl')
-    # APPLICATION_BASE = 'http://data-access-gateway:5001/api/'
-    APPLICATION_BASE = 'http://localhost:5020/api/'
-    ACCESS_PRICE = 7
+    DATA_SOURCE_FILE_PATHS = [os.path.join(os.path.abspath(os.path.dirname(__file__)), p) for p in 
+        os.getenv('DATA_SOURCE_FILE_PATHS', 
+            'data/IngredientDatabase.csv,data/IngredientPropertyDatabase.csv').split(',')]
+    # DATA_SOURCE_FILE_PATHS = [os.path.join(PACKAGE_PATH, 'data/IngredientDatabase.csv'), 
+        # os.path.join(PACKAGE_PATH, 'data/IngredientPropertyDatabase.csv')]
+    COLUMN_TYPES = json.loads(os.getenv('COLUMN_TYPES',
+        json.dumps([dict(Ingredient='str', IngredientCode='str'), 
+                    dict(Ingredient='str',IngredientCode='str',IngredientProperty='str',
+                            ValueText='str',ValueNum='float',UnitOfMeasure='str')])))
+    # COLUMN_TYPES = [dict(Ingredient=str, IngredientCode=str), 
+        # dict(Ingredient=str,IngredientCode=str,IngredientProperty=str,
+            # ValueText=str,ValueNum=float,UnitOfMeasure=str)]
+    ONTOLOGY_FILE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.getenv('ONTOLOGY_FILE_PATH', 'data/test-ontology.ttl'))
+    # APPLICATION_BASE = 'http://data-access-gateway:5001'
+    APPLICATION_BASE = os.getenv('APPLICATION_BASE', 'http://localhost:5020')
+    ACCESS_PRICE = float(os.getenv('ACCESS_PRICE', '3'))
 
     # flask config
     TESTING = False
@@ -22,8 +28,8 @@ class BaseConfiguration():
     ENV = 'development'
 
     # Internet of Food config
-    #INOF_BASE = 'http://model-sharing-backend:5020/api/'
-    INOF_BASE = 'http://localhost:81/api/'
+    #INOF_BASE = 'http://model-sharing-backend:5020'
+    INOF_BASE = os.getenv('INOF_BASE', 'http://localhost:81')
     API_TOKEN = 'inof1234hossain' # replace with api token of user
 
     # # SQLAlchemy config
@@ -39,8 +45,8 @@ class TestConfiguration(BaseConfiguration):
     # SQLALCHEMY_DATABASE_URI = 'postgresql://admin:admin@localhost:5432/ingredient_db_test'
     
     # Internet of Food config
-    INOF_BASE = 'http://localhost:81/api/'
-    APPLICATION_BASE = 'http://localhost:5020/api/'
+    INOF_BASE = os.getenv('INOF_BASE', 'http://localhost:81')
+    APPLICATION_BASE = os.getenv('APPLICATION_BASE', 'http://localhost:5020')
 
 
 class DockerDeployConfiguration(BaseConfiguration):
@@ -49,10 +55,10 @@ class DockerDeployConfiguration(BaseConfiguration):
     # Internet of Food config
     #INOF_BASE = 'http://internet-of-food.win.tue.nl:81/api/' # <- for external deployment
     #APPLICATION_BASE = 'http://data-access-gateway:5002/api/' # <- change if hosted on other machine
-    INOF_BASE = 'http://model-sharing-backend:81/api/'
+    INOF_BASE = os.getenv('INOF_BASE', 'http://model-sharing-backend:81')
 
-    TESTING = False
-    DEBUG = False
+    # TESTING = False
+    # DEBUG = False
     ENV = 'production'
 
 

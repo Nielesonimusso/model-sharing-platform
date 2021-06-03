@@ -78,7 +78,7 @@ def get_data_sources(app=None) -> Dict[str, DataSource]:
             raise ValueError('Flask app required for initialization')
         __ds__ = dict()
         data_source_paths = app.config['DATA_SOURCE_FILE_PATHS']
-        all_column_types = app.config['COLUMN_TYPES']
+        all_column_types = [{c: eval(t) for c,t in ct.items()} for ct in app.config['COLUMN_TYPES']]
         ontology_path = app.config['ONTOLOGY_FILE_PATH']
         for data_source_path, column_types in zip(data_source_paths, all_column_types):
             name = splitext(basename(data_source_path))[0]

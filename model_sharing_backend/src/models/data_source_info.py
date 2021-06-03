@@ -3,9 +3,9 @@ from enum import Enum
 from marshmallow import fields, validate, post_load
 from sqlalchemy.dialects.postgresql import UUID
 
-from common_data_access.base_schema import DbSchema, BaseModel
 from common_data_access.db import create_db_connection
 from common_data_access.dtos import NotEmptyString
+from model_sharing_backend.src.ontology_services.data_structures import TableDefinitionSchema
 from .base_model import BaseModelWithOwnerAndCreator, BaseDbSchemaWithOwnerAndCreator, \
     BasePermission, BasePermissionDtoSchema
 from .query_classes.data_source_info_query_class import DataSourceInfoQuery
@@ -46,6 +46,13 @@ class DataSourceInfo(BaseModelWithOwnerAndCreator):
 
         def __init__(self, *args, **kwargs):
             super().__init__(DataSourceInfo, *args, **kwargs)
+
+class DataSourceInfoWithTableDbSchema(DataSourceInfo.DataSourceInfoDbSchema, TableDefinitionSchema):
+    
+    @post_load
+    def _after_load(self, data, **kwargs):
+        class_name = f'{type(self).__name__}_generated'
+        return type(class_name, (object,), data)
 
 
 DataSourceBasicInfoReadonlyField = fields.Nested(DataSourceInfo.DataSourceInfoDbSchema,

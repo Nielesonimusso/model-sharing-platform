@@ -1,13 +1,16 @@
-from threading import currentThread
 from flask import Blueprint, request, jsonify
+from flask.helpers import make_response
 from flask_jwt_extended import jwt_required, current_user
+from marshmallow.exceptions import ValidationError
+import rdflib
 
 import requests
 from datetime import datetime
 
 from common_data_access.json_extension import get_json
-from model_sharing_backend.src.models.data_source_info import DataSourceInfo, \
+from model_sharing_backend.src.models.data_source_info import DataSourceInfo, DataSourceInfoWithTableDbSchema, \
     DataSourcePermission, DataSourcePermissionTypes
+from model_sharing_backend.src.ontology_services.data_structures import TableDefinition, TableDefinitionSchema
 
 data_source_bp = Blueprint('DataSources', __name__)
 
@@ -56,6 +59,7 @@ def update_data_source(data_source_id: str):
     data_source_info_db.price = data_source_info_new.price
     data_source_info_db.is_connected = data_source_info_new.is_connected
     data_source_info_db.gateway_url = data_source_info_new.gateway_url
+    data_source_info_db.ontology_uri = data_source_info_new.ontology_uri
     
     data_source_info_db = data_source_info_db.update()
     return get_json(data_source_info_db, DataSourceInfo.DataSourceInfoDbSchema,
@@ -86,8 +90,26 @@ def get_own_data_sources():
 @jwt_required
 def get_data_source(data_source_id: str):
     data_source_info = DataSourceInfo.query.get_created_by_or_404(current_user.id, data_source_id)
-    return get_json(data_source_info, DataSourceInfo.DataSourceInfoDbSchema,
-                {'company_id': current_user.company_id})
+
+    # include datasource table 
+    data_source_table = TableDefinition.from_graph(
+        rdflib.Graph().parse(location=data_source_info.gateway_url+'/ontology.ttl', format="turtle"),
+        rdflib.URIRef(data_source_info.ontology_uri))
+
+    data_source_info_table = DataSourceInfo.DataSourceInfoDbSchema(context={'company_id': current_user.company_id}).dump(data_source_info)
+    data_source_info_table.update(TableDefinitionSchema().dump(data_source_table))
+
+    if len(val_errors := DataSourceInfoWithTableDbSchema().validate(data_source_info_table)) == 0:
+        return jsonify(data_source_info_table)
+    else:
+        raise ValidationError(val_errors)
+
+@data_source_bp.route('/data_source/data/<data_source_id>', methods=['GET'])
+@jwt_required
+def get_data_source_data(data_source_id: str):
+    data_source_info = DataSourceInfo.query.get_created_by_or_404(current_user.id, data_source_id)
+    return jsonify(requests.get(data_source_info.gateway_url+'/data.json').json())
+
 
 @data_source_bp.route('/data_source/permissions/<data_source_id>', methods=['PUT'])
 @jwt_required

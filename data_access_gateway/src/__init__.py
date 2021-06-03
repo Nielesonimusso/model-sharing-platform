@@ -49,7 +49,7 @@ def select_configuration():
     return conf
 
 def api_authorization_header(app: Flask) -> dict:
-    api_token_endpoint = app.config['INOF_BASE'] + 'api_token'
+    api_token_endpoint = app.config['INOF_BASE'] + '/api/api_token'
     api_key = app.config['API_TOKEN']
     try:
         auth_token = requests.post(api_token_endpoint, json=dict(api_key=api_key)).json()
@@ -61,25 +61,26 @@ def api_authorization_header(app: Flask) -> dict:
 def register_data_sources(app: Flask):
 
     if auth_token_header := api_authorization_header(app):
-        application_base = app.config['APPLICATION_BASE']
+        application_base = app.config['APPLICATION_BASE'] + '/api/'
 
         # one request for every data source
         price = app.config['ACCESS_PRICE']
         inof_base = app.config['INOF_BASE']
-        api_check_endpoint = inof_base + 'own_data_sources'
-        api_register_endpoint = inof_base + 'data_source'
+        api_check_endpoint = inof_base + '/api/own_data_sources'
+        api_register_endpoint = inof_base + '/api/data_source'
 
         data_sources = get_data_sources()
         for data_source_name, data_source in data_sources.items():
             try:
                 check = requests.get(api_check_endpoint, headers=auth_token_header).json()
-                existing = [a for a in check if a["gateway_url"] == application_base + data_source_name + '/']
+                existing = [a for a in check if a["gateway_url"] == application_base + data_source_name]
 
                 data_source_info = dict(
                             name = data_source_name,
                             price = price,
                             is_connected = True,
-                            gateway_url = application_base + data_source_name + '/'
+                            gateway_url = application_base + data_source_name,
+                            ontology_uri = application_base + data_source_name + '/ontology.ttl#' + data_source_name
                 )
 
                 if len(existing) > 0:
@@ -101,9 +102,9 @@ def register_data_sources(app: Flask):
 def deregister_on_exit(app: Flask):
 
     if auth_token_header := api_authorization_header(app):
-            api_update_endpoint = app.config['INOF_BASE'] + 'data_source/'
+            api_update_endpoint = app.config['INOF_BASE'] + '/api/data_source/'
             price = app.config['ACCESS_PRICE']
-            application_base = app.config['APPLICATION_BASE']
+            application_base = app.config['APPLICATION_BASE'] + '/api/'
 
             data_sources = get_data_sources()
             for data_source_name, data_source in data_sources.items():
@@ -112,7 +113,8 @@ def deregister_on_exit(app: Flask):
                         name = data_source_name,
                         price = price,
                         is_connected = False,
-                        gateway_url = application_base + data_source_name + '/'
+                        gateway_url = application_base + data_source_name,
+                        ontology_uri = application_base + data_source_name + '/ontology.ttl#' + data_source_name
                     ), headers=auth_token_header).json())
                 except RequestException as ex:
                     print(f"Could not update connected state of data source {data_source_name}")

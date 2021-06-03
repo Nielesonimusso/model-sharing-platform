@@ -16,32 +16,45 @@ class ColumnDefinition:
     value_source: str = None
 
 @dataclass
-class ArgumentDefinition:
+class TableDefinition:
     uri: str
-    name: str
-    type_uri: str
     columns: List[ColumnDefinition]
 
     @staticmethod
-    def from_graph(graph: rdflib.Graph, argument_node: rdflib.URIRef) -> 'ArgumentDefinition':
-        SERVICE = rdflib.Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
+    def from_graph(graph: rdflib.Graph, table_node: rdflib.URIRef) -> 'TableDefinition':
         TABLE = rdflib.Namespace('http://www.foodvoc.org/resource/InternetOfFood/Table/')
 
-        argumentUri = str(argument_node)
-        argumentName = graph.value(subject=argument_node, predicate=SERVICE.hasArgumentName)
-
-        table_node = graph.value(subject=argument_node, predicate=SERVICE.hasArgumentType)
-        argumentTypeUri = str(table_node)
+        tableUri = str(table_node)
 
         tableColumns = []
         for column_node in graph.objects(table_node, TABLE.hasColumnProperty):
             columnUri = str(column_node)
             columnName = graph.value(subject=column_node, predicate=TABLE.hasColumnName)
             columnDatatype = next(graph.objects(column_node, rdflib.RDFS.range))
-            #TODO columnUnit and columnValue_source
+            #TODO columnUnit and columnValue_source, probably from more complex queries
             tableColumns.append(ColumnDefinition(columnUri, columnName, columnDatatype))
+        
+        return TableDefinition(tableUri, tableColumns)
 
-        return ArgumentDefinition(argumentUri, argumentName, argumentTypeUri, tableColumns)
+@dataclass
+class ArgumentDefinition:
+    uri: str
+    name: str
+    # direct from TableDefinition
+    type_uri: str
+    columns: List[ColumnDefinition]
+
+    @staticmethod
+    def from_graph(graph: rdflib.Graph, argument_node: rdflib.URIRef) -> 'ArgumentDefinition':
+        SERVICE = rdflib.Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
+
+        argumentUri = str(argument_node)
+        argumentName = graph.value(subject=argument_node, predicate=SERVICE.hasArgumentName)
+
+        table_node = graph.value(subject=argument_node, predicate=SERVICE.hasArgumentType)
+        tableDefinition = TableDefinition.from_graph(graph, table_node)
+
+        return ArgumentDefinition(argumentUri, argumentName, tableDefinition.uri, tableDefinition.columns)
 
     
 @dataclass
@@ -90,6 +103,15 @@ class ColumnDefinitionSchema(DataclassSchema):
     def __init__(self, *args, **kwargs):
         super().__init__(ColumnDefinition, *args, **kwargs)
 
+
+class TableDefinitionSchema(DataclassSchema):
+    uri = fields.String(required=True)
+    columns = fields.Nested(ColumnDefinitionSchema, many=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(TableDefinition, *args, **kwargs)
+
+
 class ArgumentDefinitionSchema(DataclassSchema):
     uri = fields.String(required=True)
     name = fields.String(required=True)
@@ -98,6 +120,7 @@ class ArgumentDefinitionSchema(DataclassSchema):
 
     def __init__(self, *args, **kwargs):
         super().__init__(ArgumentDefinition, *args, **kwargs)
+
 
 class InterfaceDefinitionSchema(DataclassSchema):
     uri = fields.String(required=True)
