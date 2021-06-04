@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 from marshmallow import fields, post_load, validate
 from sqlalchemy.dialects.postgresql import UUID
@@ -15,15 +16,27 @@ from .user import UserBasicReadonlyInfo
 
 _db = create_db_connection()
 
+
+class SimulationBindingTypes(Enum):
+    DATA_SOURCE = 'data'
+    MODEL = 'model'
+    FIXED = 'fixed'
+
+
 class SimulationBinding(BaseModel):
     __tablename__ = 'simulation_bindings'
 
-    model_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('simulations.id'), nullable=False)
+    model_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('simulations.id'), 
+        nullable=False)
     source = _db.Column(_db.String)
+    source_type = _db.Column(_db.Enum(SimulationBindingTypes), nullable=False, 
+        default=SimulationBindingTypes.FIXED)
     target = _db.Column(_db.String)
 
     class SimulationBindingDtoSchema(BaseDto):
         source = fields.String()
+        source_type = fields.Str(required=True,
+            validate=validate.OneOf([sbt.value for sbt in SimulationBindingTypes]))
         target = fields.String()
 
 class Simulation(BaseModelWithOwnerAndCreator):
