@@ -6,12 +6,13 @@ from .permission_query_class import PermissionFilteredQuery
 class DataSourceInfoQuery(PermissionFilteredQuery):
     def get_all_data_accessible_by(self, company_id, *filter_criteria):
         from model_sharing_backend.src.models.data_source_info import DataSourcePermissionTypes
-        entity = self._entity_with_owner_and_creator
+        entity = self._entity_with_owner_and_creator()
         q = self.filter(or_(self._owner_condition(entity, company_id),
                             entity.permissions.any(
                                 self._has_permission_condition(entity, company_id,
                                     DataSourcePermissionTypes.VIEW_AND_ACCESS)
                             )), entity.is_connected, *filter_criteria)
+        return q.all()
 
     def get_data_accessible_or_404(self, company_id, data_source_id):
         entities = self.get_all_data_accessible_by(company_id, self._entity_with_owner_and_creator().id == data_source_id)

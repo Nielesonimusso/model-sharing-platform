@@ -47,7 +47,7 @@ class Simulation(BaseModelWithOwnerAndCreator):
     # food_product_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('food_products.id'))
     # food_product = _db.relationship('FoodProduct')
     models = _db.relationship('ModelInfo', secondary=model_simulation_association)
-    datasources = _db.relationship('DataSourceInfo', secondary=data_source_simulation_association)
+    data_sources = _db.relationship('DataSourceInfo', secondary=data_source_simulation_association)
     executions = _db.relationship('ExecutedSimulation', cascade='delete, save-update')
     bindings = _db.relationship('SimulationBinding', cascade='delete, save-update')
 
@@ -59,9 +59,9 @@ class Simulation(BaseModelWithOwnerAndCreator):
         model_ids = fields.List(fields.UUID(), required=True, load_only=True, 
             validate=[validate.Length(min=1)])
         models = fields.List(ModelBasicInfoReadonlyField, dump_only=True)
-        datasource_ids = fields.List(fields.UUID(), required=True, load_only=True,
+        data_source_ids = fields.List(fields.UUID(), required=True, load_only=True,
             validate=[validate.Length(min=1)])
-        datasources = fields.List(DataSourceBasicInfoReadonlyField, dump_only=True)
+        data_sources = fields.List(DataSourceBasicInfoReadonlyField, dump_only=True)
         bindings = fields.List(fields.Nested(SimulationBinding.SimulationBindingDtoSchema, 
             validate=validate.Predicate(method='validate_bindings', 
                 error='No duplicate bindings for sources allowed')))
@@ -76,13 +76,14 @@ class Simulation(BaseModelWithOwnerAndCreator):
         @post_load
         def _after_load(self, data: dict, **kwargs):
             model_ids = data.get('model_ids', [])
-            data_source_ids = data.get('datasource_ids', [])
+            data_source_ids = data.get('data_source_ids', [])
             del data['model_ids']
+            del data['data_source_ids']
             sim = super()._after_load(data, **kwargs)
             company_id = self.context.get('company_id', None)
             # sim.food_product = FoodProduct.query.get_accessible_or_404(company_id, sim.food_product_id)
             sim.models = [ModelInfo.query.get_executable_or_404(company_id, model_id) for model_id in model_ids]
-            sim.datasources = [DataSourceInfo.query.get_executable_or_404(company_id, data_source_id) for data_source_id in data_source_ids]
+            sim.data_sources = [DataSourceInfo.query.get_data_accessible_or_404(company_id, data_source_id) for data_source_id in data_source_ids]
             return sim
 
 
