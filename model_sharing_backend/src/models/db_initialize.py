@@ -136,54 +136,54 @@ class ModelDbInitialize(BaseDbInitialize):
         #
         # MODELS
         #
-        m1 = ModelInfo(name='Tomato soup sweetness and sourness model',
-                       description='This model calculates the sweetness and sourness of a tomato soup',
-                       price=10, gateway_url='http://sweet-sourness-model-access-gateway:5001', is_connected=True,
-                       owner=company_tue, created_on=datetime.utcnow(),
-                       created_by=User.query.get_one_where(User.username == u1),
-                       ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
-                       ).save()
+        # m1 = ModelInfo(name='Tomato soup sweetness and sourness model',
+        #                description='This model calculates the sweetness and sourness of a tomato soup',
+        #                price=10, gateway_url='http://sweet-sourness-model-access-gateway:5001', is_connected=True,
+        #                owner=company_tue, created_on=datetime.utcnow(),
+        #                created_by=User.query.get_one_where(User.username == u1),
+        #                ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
+        #                ).save()
 
-        m2 = ModelInfo(name='Chicken soup taste model', description='This model calculates the taste of a chicken soup',
-                       price=21, gateway_url='http://tomato-saltiness-model-access-gateway:5003', is_connected=True,
-                       owner=company_unilever, created_on=datetime.utcnow(),
-                       created_by=User.query.get_one_where(User.username == u2),
-                       ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
-                       ).save()
+        # m2 = ModelInfo(name='Chicken soup taste model', description='This model calculates the taste of a chicken soup',
+        #                price=21, gateway_url='http://tomato-saltiness-model-access-gateway:5003', is_connected=True,
+        #                owner=company_unilever, created_on=datetime.utcnow(),
+        #                created_by=User.query.get_one_where(User.username == u2),
+        #                ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
+        #                ).save()
 
-        m3 = ModelInfo(name='Tomato soup saltiness and tomato taste model',
-                       description='This model calculates the saltiness and tomato taste of a tomato soup',
-                       price=10, gateway_url='http://tomato-saltiness-model-access-gateway:5001', is_connected=True,
-                       owner=company_unilever, created_on=datetime.utcnow(),
-                       created_by=User.query.get_one_where(User.username == u2),
-                       ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
-                       ).save()
+        # m3 = ModelInfo(name='Tomato soup saltiness and tomato taste model',
+        #                description='This model calculates the saltiness and tomato taste of a tomato soup',
+        #                price=10, gateway_url='http://tomato-saltiness-model-access-gateway:5001', is_connected=True,
+        #                owner=company_unilever, created_on=datetime.utcnow(),
+        #                created_by=User.query.get_one_where(User.username == u2),
+        #                ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
+        #                ).save()
 
-        m3.permissions.append(ModelPermission(model_info_id=m3.id, company_id=company_tue.id,
-                                              permission_type=ModelPermissionTypes.VIEW_AND_EXECUTE))
-        m3.save()
+        # m3.permissions.append(ModelPermission(model_info_id=m3.id, company_id=company_tue.id,
+        #                                       permission_type=ModelPermissionTypes.VIEW_AND_EXECUTE))
+        # m3.save()
 
-        m4 = ModelInfo(name='Tomato soup nutrition information model',
-                       description='This model calculates the nutrition information of tomato soup',
-                       price=5, gateway_url='http://nutrition-model-access-gateway:5001', is_connected=True,
-                       owner=company_unilever, created_on=datetime.utcnow(),
-                       created_by=User.query.get_one_where(User.username == u2), 
-                       ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
-                       ).save()
+        # m4 = ModelInfo(name='Tomato soup nutrition information model',
+        #                description='This model calculates the nutrition information of tomato soup',
+        #                price=5, gateway_url='http://nutrition-model-access-gateway:5001', is_connected=True,
+        #                owner=company_unilever, created_on=datetime.utcnow(),
+        #                created_by=User.query.get_one_where(User.username == u2), 
+        #                ontology_uri='http://www.foodvoc.org/resource/InternetOfFoodModel/tomatoSoupModel'
+        #                ).save()
 
-        m4.permissions.append(ModelPermission(model_info_id=m4.id, company_id=company_tue.id,
-                                              permission_type=ModelPermissionTypes.VIEW_AND_EXECUTE))
-        m4.save()
+        # m4.permissions.append(ModelPermission(model_info_id=m4.id, company_id=company_tue.id,
+        #                                       permission_type=ModelPermissionTypes.VIEW_AND_EXECUTE))
+        # m4.save()
 
-        #
-        # SIMULATIONS
-        #
-        Simulation(name='Tomato Soup Saltiness and Sourness Simulation',
-                   food_product=fp_ts_nl, models=[m1],
-                   owner=company_tue, created_on=datetime.utcnow(),
-                   created_by=User.query.get_one_where(User.username == u1)).save()
+        # #
+        # # SIMULATIONS
+        # #
+        # Simulation(name='Tomato Soup Saltiness and Sourness Simulation',
+        #            food_product=fp_ts_nl, models=[m1],
+        #            owner=company_tue, created_on=datetime.utcnow(),
+        #            created_by=User.query.get_one_where(User.username == u1)).save()
 
-        Simulation(name='Tomato Soup Sweetness and Tomato Taste Simulation',
-                   food_product=fp_ts_de, models=[m2, m3],
-                   owner=company_unilever, created_on=datetime.utcnow(),
-                   created_by=User.query.get_one_where(User.username == u2)).save()
+        # Simulation(name='Tomato Soup Sweetness and Tomato Taste Simulation',
+        #            food_product=fp_ts_de, models=[m2, m3],
+        #            owner=company_unilever, created_on=datetime.utcnow(),
+        #            created_by=User.query.get_one_where(User.username == u2)).save()

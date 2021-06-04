@@ -36,6 +36,14 @@ class NutritionModel(Model):
     def output_dto(self) -> type:
         return NutritionSchema
 
+    @property
+    def description(self) -> str:
+        return """Model that calculates the nutritional values of a food product"""
+
+    @property
+    def price(self) -> float:
+        return 4
+
     def run_model(self, input) -> list:
         ingredients = [get_ingredient_properties(i.company_code) for i in input.IngredientsTable]
     

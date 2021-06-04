@@ -6,6 +6,8 @@ import atexit
 from flask import Flask
 from requests.exceptions import RequestException
 
+from common_data_access.api_utils import api_authorization_header
+
 from .config import DefaultConfiguration, BaseConfiguration, TestConfiguration, DockerDeployConfiguration
 from .data.data_source import get_data_sources
 # from .data import initialize_db_connections
@@ -48,15 +50,6 @@ def select_configuration():
     print(f'Starting with configuration {conf.__name__}')
     return conf
 
-def api_authorization_header(app: Flask) -> dict:
-    api_token_endpoint = app.config['INOF_BASE'] + '/api/api_token'
-    api_key = app.config['API_TOKEN']
-    try:
-        auth_token = requests.post(api_token_endpoint, json=dict(api_key=api_key)).json()
-        return dict(authorization="Bearer "+auth_token)
-    except RequestException as ex:
-        print("Issue getting authorization key; ")
-        return None
 
 def register_data_sources(app: Flask):
 

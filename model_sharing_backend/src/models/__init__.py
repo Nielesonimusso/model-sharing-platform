@@ -18,7 +18,7 @@ def get_schema_classes() -> List:
     from .data_source_info import get_schemas as data_source_schemas
     from common_data_access.dtos import IngredientInfoDtoSchema, ModelResultDtoSchema, RunModelDtoSchema, \
         ModelRunStatusDtoSchema
-    return [*product_schemas(), *model_schemas(), *simulation_schemas(), *user_schemas(), *data_source_schemas(), 
+    return [*product_schemas(), *model_schemas(), *data_source_schemas(), *simulation_schemas(), *user_schemas(), 
             IngredientInfoDtoSchema, ModelResultDtoSchema, RunModelDtoSchema, ModelRunStatusDtoSchema]
 
 

@@ -1,6 +1,6 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 import os
-from typing import Any, Callable, Optional, Tuple, TypeVar
+from typing import Any, Callable, Optional, Tuple
 from flask.globals import _app_ctx_stack
 from concurrent.futures import Future
 

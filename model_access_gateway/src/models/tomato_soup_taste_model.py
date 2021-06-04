@@ -39,6 +39,19 @@ class TasteModel(Model):
     def output_dto(self) -> type:
         return TasteOutputDto
 
+    @property
+    def name(self) -> str:
+        return f'{super().name}: {", ".join(self.tastes_to_calculate)}'
+
+    @property
+    def description(self) -> str:
+        return f"""Model that calculates the following tastes of a food product: 
+    {", ".join(self.tastes_to_calculate)}"""
+
+    @property
+    def price(self) -> float:
+        return 3.5
+
     def run_model(self, input) -> list:
         ingredients = [get_ingredient_properties(i.company_code) for i in input.IngredientsTable]
 

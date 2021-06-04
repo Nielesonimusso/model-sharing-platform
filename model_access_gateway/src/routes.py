@@ -15,6 +15,7 @@ from model_access_gateway.src.models.nutrition_model import NutritionModel
 from .db import SimulationRun
 from .models.tomato_soup_taste_model import TasteModel
 from concurrent.futures import Future
+from ..src import get_model
 
 routes_blueprint = Blueprint('gateway', __name__)
 
@@ -23,21 +24,6 @@ routes_blueprint = Blueprint('gateway', __name__)
 def index():
     return 'This is the front page of the gateway'
 
-
-def get_model(app) -> Model:
-    models: Dict[str, Model] = dict(
-        taste=TasteModel(app.config.get('TASTES_TO_CALCULATE', None)),
-        nutrition=NutritionModel(),
-        pasteurization=None,
-        shelflife=None,
-        calibration=None,
-        dropletsize=None
-    )
-
-    model: Model = models.get(app.config['MODEL'])
-
-    return model
-    
 
 @routes_blueprint.route('/ontology.ttl', methods=['GET'])
 def get_ontology() -> str:

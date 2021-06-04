@@ -8,6 +8,10 @@ class BaseConfiguration():
     TASTES_TO_CALCULATE = os.getenv('TASTES_TO_CALCULATE', 'sweetness,sourness,saltiness,tomato taste').split(',')
     MODEL = os.getenv('MODEL', 'taste').lower() # ['taste', 'nutrition'] ['pasteurization', 'shelflife', 'calibration', 'dropletsize']
 
+    APPLICATION_BASE = os.getenv('APPLICATION_BASE', 'http://localhost:5001')
+    INOF_BASE = os.getenv('INOF_BASE', 'http://localhost:81')
+    API_TOKEN = 'inof1234hossain' # replace with api token of user
+
     # SQLAlchemy config
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
@@ -31,9 +35,9 @@ class TestConfiguration(BaseConfiguration):
 class DockerDeployConfiguration(BaseConfiguration):
     INGREDIENT_SERVICE_URL = 'http://ingredient-service:5002'
     SQLALCHEMY_DATABASE_URI = 'postgresql://admin:admin@db-container:5432/gateway_db'
-    TESTING = False
-    DEBUG = False
-    ENV = 'production'
+    # TESTING = False
+    # DEBUG = False
+    # ENV = 'production'
 
 
 DefaultConfiguration: BaseConfiguration = BaseConfiguration()

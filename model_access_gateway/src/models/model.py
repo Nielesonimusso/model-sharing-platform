@@ -13,6 +13,14 @@ from rdflib.term import Literal, URIRef
 
 class Model(metaclass=ABCMeta):
 
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        self._id = id
+
     @abstractmethod
     def run_model(self, input) -> List[dict]:
         pass
@@ -25,6 +33,20 @@ class Model(metaclass=ABCMeta):
     @property
     @abstractmethod
     def output_dto(self) -> type:
+        pass
+
+    @property
+    def name(self) -> str:
+        return type(self).__name__
+
+    @property
+    @abstractmethod
+    def description(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def price(self) -> float:
         pass
 
     def get_ontology(self) -> str:

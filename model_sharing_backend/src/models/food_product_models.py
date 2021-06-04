@@ -126,7 +126,7 @@ class FoodProduct(_ModelWithIdAndName, BaseModelWithOwnerAndCreator):
     processing_steps = _db.relationship('FoodProductProcessingStep', cascade='delete-orphan, delete, save-update')
     packagings = _db.relationship('FoodProductPackaging', cascade='delete-orphan, delete, save-update')
     permissions = _db.relationship('FoodProductPermission', cascade='delete-orphan, delete, save-update')
-    used_in_simulations = _db.relationship('Simulation')
+    # used_in_simulations = _db.relationship('Simulation')
 
     class FoodProductDbSchema(_SchemaWithIdAndName, BaseDbSchemaWithOwnerAndCreator):
         company_code = fields.Str(required=True, validate=[NotEmptyString()])
