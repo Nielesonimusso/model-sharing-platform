@@ -6,47 +6,13 @@ from sqlalchemy.dialects.postgresql import UUID
 from common_data_access.base_schema import DbSchema, BaseModel
 from common_data_access.db import create_db_connection
 from common_data_access.dtos import NotEmptyString
-from model_sharing_backend.src.ontology_services.data_structures import InterfaceDefinitionSchema
+from model_sharing_backend.src.ontology_services.data_structures import ModelInterfaceDefinitionSchema
 from .association_models import model_simulation_association
 from .base_model import BaseModelWithOwnerAndCreator, BaseDbSchemaWithOwnerAndCreator, BasePermission, \
     BasePermissionDtoSchema
 from .query_classes.model_info_query_class import ModelInfoQuery
 
 _db = create_db_connection()
-
-
-class ModelParameterLabel(BaseModel):
-    __tablename__ = 'model_parameter_labels'
-
-    name = _db.Column(_db.String, nullable=False)
-    language = _db.Column(_db.String, nullable=False)
-    model_parameter_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('model_parameters.id'))
-
-    class ModelParameterLabelDbSchema(DbSchema):
-        name = fields.Str(required=True, validate=[NotEmptyString()])
-        language = fields.Str(missing='en', validate=validate.OneOf(['en', 'nl']))
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(ModelParameterLabel, *args, **kwargs)
-
-
-class ModelParameter(BaseModel):
-    __tablename__ = 'model_parameters'
-
-    labels = _db.relationship('ModelParameterLabel', cascade='delete-orphan, delete, save-update')
-    description = _db.Column(_db.String, nullable=False)
-    unit = _db.Column(_db.String, nullable=False)
-    model_info_input_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('model_infos.id'))
-    model_info_output_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('model_infos.id'))
-
-    class ModelParameterDbSchema(DbSchema):
-        labels = fields.List(fields.Nested(ModelParameterLabel.ModelParameterLabelDbSchema, exclude=['id']),
-                             required=True, validate=validate.Length(min=1))
-        description = fields.Str(required=True, validate=[NotEmptyString()])
-        unit = fields.Str(required=True, validate=[NotEmptyString()])
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(ModelParameter, *args, **kwargs)
 
 
 class ModelInfo(BaseModelWithOwnerAndCreator):
@@ -89,7 +55,7 @@ class ModelInfo(BaseModelWithOwnerAndCreator):
             super().__init__(ModelInfo, *args, **kwargs)
 
 
-class ModelInfoWithParametersDtoSchema(ModelInfo.ModelInfoDbSchema, InterfaceDefinitionSchema):
+class ModelInfoWithParametersDtoSchema(ModelInfo.ModelInfoDbSchema, ModelInterfaceDefinitionSchema):
 
     @post_load
     def _after_load(self, data, **kwargs):
@@ -99,7 +65,7 @@ class ModelInfoWithParametersDtoSchema(ModelInfo.ModelInfoDbSchema, InterfaceDef
 
 ModelBasicInfoReadonlyField = fields.Nested(ModelInfo.ModelInfoDbSchema,
                                             only=('id', 'name', 'owner', 'can_execute', 'is_connected', 'description',
-                                                  'price'), dump_only=True)
+                                                  'price', 'ontology_uri', 'gateway_url'), dump_only=True)
 
 
 class ModelPermissionTypes(Enum):

@@ -58,13 +58,13 @@ class ArgumentDefinition:
 
     
 @dataclass
-class InterfaceDefinition:
+class ModelInterfaceDefinition:
     uri: str
     inputs: List[ArgumentDefinition]
     outputs: List[ArgumentDefinition]
 
     @staticmethod
-    def from_graph(graph: rdflib.Graph, model_node: rdflib.URIRef = None) -> 'InterfaceDefinition':
+    def from_graph(graph: rdflib.Graph, model_node: rdflib.URIRef = None) -> 'ModelInterfaceDefinition':
         SERVICE = rdflib.Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
 
         # pick first model subject in graph if no model node is provided
@@ -79,7 +79,7 @@ class InterfaceDefinition:
         interfaceOutputs = [ArgumentDefinition.from_graph(graph, output_node) 
             for output_node in graph.objects(root_node, SERVICE.hasOutputArgument)]
 
-        return InterfaceDefinition(interfaceUri, interfaceInputs, interfaceOutputs)
+        return ModelInterfaceDefinition(interfaceUri, interfaceInputs, interfaceOutputs)
 
 
 class DataclassSchema(Schema):
@@ -122,10 +122,10 @@ class ArgumentDefinitionSchema(DataclassSchema):
         super().__init__(ArgumentDefinition, *args, **kwargs)
 
 
-class InterfaceDefinitionSchema(DataclassSchema):
+class ModelInterfaceDefinitionSchema(DataclassSchema):
     uri = fields.String(required=True)
     inputs = fields.Nested(ArgumentDefinitionSchema, many=True)
     outputs = fields.Nested(ArgumentDefinitionSchema, many=True)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(InterfaceDefinition, *args, **kwargs)
+        super().__init__(ModelInterfaceDefinition, *args, **kwargs)

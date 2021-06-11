@@ -56,7 +56,7 @@ class DataSourceInfoWithTableDbSchema(DataSourceInfo.DataSourceInfoDbSchema, Tab
 
 
 DataSourceBasicInfoReadonlyField = fields.Nested(DataSourceInfo.DataSourceInfoDbSchema,
-        only=('id', 'name', 'owner', 'can_access', 'is_connected', 'price'), 
+        only=('id', 'name', 'owner', 'can_access', 'is_connected', 'price', 'ontology_uri', 'gateway_url'), 
         dump_only=True)
 
 class DataSourcePermissionTypes(Enum):

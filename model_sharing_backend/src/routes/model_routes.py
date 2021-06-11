@@ -14,7 +14,7 @@ from model_sharing_backend.src.graph_db.queries.add_model import add_model
 from model_sharing_backend.src.graph_db.queries.query_runner import SparQlRunner
 from model_sharing_backend.src.models.model_info import ModelInfo, ModelPermission, ModelPermissionDtoSchema, \
     ModelPermissionTypes, ModelInfoWithParametersDtoSchema
-from model_sharing_backend.src.ontology_services.data_structures import InterfaceDefinition, InterfaceDefinitionSchema
+from model_sharing_backend.src.ontology_services.data_structures import ModelInterfaceDefinition, ModelInterfaceDefinitionSchema
 
 model_bp = Blueprint('Models', __name__)
 
@@ -203,12 +203,12 @@ def get_model(model_id: str):
             description: Model with specified id not found or not accessible by current user
     """
     model_info: ModelInfo = ModelInfo.query.get_accessible_or_404(current_user.company_id, model_id)
-    interface_info = InterfaceDefinition.from_graph(
+    interface_info = ModelInterfaceDefinition.from_graph(
         rdflib.Graph().parse(location=model_info.gateway_url+"/api/ontology.ttl", format='turtle'),
         URIRef(model_info.ontology_uri))
 
     model_interface_info = ModelInfoWithParametersDtoSchema().dump(model_info)
-    model_interface_info.update(InterfaceDefinitionSchema().dump(interface_info))
+    model_interface_info.update(ModelInterfaceDefinitionSchema().dump(interface_info))
     if len(val_errors := ModelInfoWithParametersDtoSchema().validate(model_interface_info)) == 0:
         return jsonify(model_interface_info)
     else:

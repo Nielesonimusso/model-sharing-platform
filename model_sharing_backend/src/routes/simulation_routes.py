@@ -160,8 +160,13 @@ def update_simulation(simulation_id: str):
     simulation_new = Simulation.SimulationDbSchema(context={'company_id': current_user.company_id}).load(request.json)
     simulation_db.name = simulation_new.name
     simulation_db.description = simulation_new.description
-    simulation_db.food_product_id = simulation_new.food_product_id
+    
+    simulation_db.data_sources = simulation_new.data_sources
     simulation_db.models = simulation_new.models
+
+    for binding in simulation_new.bindings:
+        binding.simulation_id = simulation_db.id
+    simulation_db.bindings = simulation_new.bindings
     return get_json(simulation_db.update(), Simulation.SimulationDbSchema, {'company_id': current_user.company_id})
 
 
@@ -194,6 +199,7 @@ def create_simulation():
     simulation.created_by = current_user
     simulation.owner = current_user.company
     simulation.created_on = datetime.utcnow()
+
     return get_json(simulation.add(), Simulation.SimulationDbSchema, {'company_id': current_user.company_id}), 201
 
 
