@@ -33,6 +33,14 @@ def get_model_run_status(gateway_url: str, run_id: str):
         raise e
 
 
+def fetch_data_source_data(gateway_url: str):
+    try:
+        return __make_request(f'{gateway_url.rstrip("/")}/data.json', requests.get)
+    except requests.RequestException as e:
+        print(f'error while communicating {gateway_url}. {str(e)}', file=sys.stdout)
+        raise e
+
+
 def __make_request(url: str, method: any, **kwargs):
     try:
         response = method(url, timeout=5, **kwargs)

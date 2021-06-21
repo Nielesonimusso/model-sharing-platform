@@ -19,6 +19,17 @@ def run_simulation(simulation: Simulation):
     executed_simulation = ExecutedSimulation(created_by=current_user, created_on=datetime.utcnow(),
                                              owner=current_user.company, simulation_id=simulation.id,
                                              executed_models=[])
+
+    # get all bindings
+    # fill all bindings (if possible)
+        # if multiple columns from same source, then use label (ie "primary key") and match the others
+        # also add extra information based on ontology (InterfaceProperties)
+            # might require extra data sources other than the ones selected for the simulation!
+        # ... implicit parameters not part of binding(?) (property - value - UNIT)
+    # loop until all models complete:
+        # run models that have completed bindings
+        # update bindings with model results
+
     for model in simulation.models:
         if model.owner_id == current_user.company_id or any(
                 filter(lambda p: p.company_id == current_user.company_id, model.permissions)):

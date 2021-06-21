@@ -11,6 +11,7 @@ from common_data_access.json_extension import get_json
 from model_sharing_backend.src.models.data_source_info import DataSourceInfo, DataSourceInfoWithTableDbSchema, \
     DataSourcePermission, DataSourcePermissionTypes
 from model_sharing_backend.src.ontology_services.data_structures import TableDefinition, TableDefinitionSchema
+from model_sharing_backend.src.utils.gateway_service import fetch_data_source_data
 
 data_source_bp = Blueprint('DataSources', __name__)
 
@@ -108,7 +109,7 @@ def get_data_source(data_source_id: str):
 @jwt_required
 def get_data_source_data(data_source_id: str):
     data_source_info = DataSourceInfo.query.get_created_by_or_404(current_user.id, data_source_id)
-    return jsonify(requests.get(data_source_info.gateway_url+'/data.json').json())
+    return jsonify(fetch_data_source_data(data_source_info.gateway_url))
 
 
 @data_source_bp.route('/data_source/permissions/<data_source_id>', methods=['PUT'])
