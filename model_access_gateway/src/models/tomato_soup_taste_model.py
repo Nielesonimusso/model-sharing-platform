@@ -1,6 +1,8 @@
 import math
+from typing import List, Tuple
 
 from marshmallow import fields
+import rdflib
 
 from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
@@ -9,11 +11,36 @@ from model_access_gateway.src.models.model import Model
 class IngredientDto(BaseDto):
     name = fields.Str(required=True)
     amount = fields.Number(required=True) # mass(?)-percent
-    company_code = fields.Str()
-    standard_code = fields.Str()
+
+    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+    __IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl#')
+
+    units = dict(
+        name = None,
+        amount = __OM.percent
+    )
+
+    references = dict(
+        name = dict(
+            source=__IDB.IngredientDatabase,
+            chain=[__IDB.Ingredient]
+            # list of property chain
+        ),
+        amount = None
+    )
 
 class DosageDto(BaseDto):
     dosage = fields.Number(required=True) # gram per liter
+
+    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+
+    units = dict(
+        dosage = __OM.gramPerLitre
+    )
+
+    references = dict(
+        dosage = None
+    )
 
 # input schema
 class RecipeInputDto(BaseDto):
@@ -21,10 +48,27 @@ class RecipeInputDto(BaseDto):
     DosageTable = fields.Nested(DosageDto, many=True)
 
 # output schema
-class TasteOutputDto(BaseDto):
+class TasteDto(BaseDto):
     taste_name = fields.Str()
     taste_value = fields.Number()
     description = fields.Str()
+
+    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+
+    units = dict(
+        taste_name = None,
+        taste_value = __OM['_0-100'],
+        description = None
+    )
+
+    references = dict(
+        taste_name = None, # TODO potential for refernce to ontology concept
+        taste_value = None,
+        description = None
+    )
+
+class TasteOutputDto(BaseDto):
+    TasteTable = fields.Nested(TasteDto, many=True)
 
 class TasteModel(Model):
     
@@ -38,6 +82,12 @@ class TasteModel(Model):
     @property
     def output_dto(self) -> type:
         return TasteOutputDto
+
+    @property
+    def ontology_imports(self) -> List[Tuple[rdflib.URIRef, str]]:
+        return [
+            ('http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl#', 'idb')
+        ]
 
     @property
     def name(self) -> str:

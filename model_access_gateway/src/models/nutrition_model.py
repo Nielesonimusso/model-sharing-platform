@@ -1,31 +1,80 @@
 import json
-from typing import List
+from typing import List, Tuple
 
 from marshmallow import fields
+import rdflib
 
 from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
 from model_access_gateway.src.models.model import Model
 
 class IngredientDto(BaseDto):
-    name = fields.Str(required=True)
+    name = fields.Str(required=True) # reference to IngredientDatabase.ingredient
     amount = fields.Number(required=True) # mass(?)-percent
-    company_code = fields.Str()
-    standard_code = fields.Str()
+
+    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+    __IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl#')
+        # based on configuration! is different when not using docker
+        # requires ontology import of 'http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl'
+
+    units = dict(
+        name = None,
+        amount = __OM.percent
+        # amount = 'name' # local unit column
+        # amount = rdflib.URIRef('URI of unit column') # for external unit column
+            # would also require an ontology import of the source of the column
+    )
+
+    references = dict(
+        name = dict(
+            source=__IDB.IngredientDatabase,
+            chain=[__IDB.Ingredient]
+            # list of property chain
+        ),
+        amount = None
+    )
 
 class DosageDto(BaseDto):
     dosage = fields.Number(required=True) # gram per liter
+
+    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+
+    units = dict(
+        dosage = __OM.gramPerLitre
+    )
+
+    references = dict(
+        dosage = None
+    )
 
 # input schema
 class NutritionInputDto(BaseDto):
     IngredientsTable = fields.Nested(IngredientDto, many=True)
     DosageTable = fields.Nested(DosageDto, many=True)
+    
 
-# output schema
 class NutritionSchema(BaseDto):
     nutrition_name = fields.Str()
     nutrition_value = fields.Number()
     nutrition_unit = fields.Str()
+
+    units = dict(
+        nutrition_name = None,
+        nutrition_value = 'nutrition_unit',
+        nutrition_unit = None
+    )
+
+    references = dict(
+        nutrition_name = None,
+        nutrition_value = None,
+        nutrition_unit = None
+    )
+
+
+# output schema
+class NutritionOutputDto(BaseDto):
+    NutritionTable = fields.Nested(NutritionSchema, many=True)
+
 
 class NutritionModel(Model):
     @property
@@ -34,7 +83,13 @@ class NutritionModel(Model):
 
     @property
     def output_dto(self) -> type:
-        return NutritionSchema
+        return NutritionOutputDto
+
+    @property
+    def ontology_imports(self) ->  List[Tuple[rdflib.URIRef, str]]:
+        return [
+            ('http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl#', 'idb')
+        ]
 
     @property
     def description(self) -> str:
