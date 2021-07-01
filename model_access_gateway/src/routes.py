@@ -30,7 +30,7 @@ def get_ontology() -> str:
 
     model: Model = get_model(current_app)
     response = make_response(model.get_ontology(), 200)
-    response.mimetype = 'text/plain'
+    response.mimetype = 'text/turtle'
     return response
 
 @routes_blueprint.route('/run_model', methods=['POST'])

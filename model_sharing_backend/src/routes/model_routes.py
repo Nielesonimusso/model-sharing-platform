@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
 from marshmallow import ValidationError
 import rdflib
+from rdflib.namespace import OWL
 from rdflib.term import URIRef
 from werkzeug.exceptions import abort
 
@@ -203,8 +204,15 @@ def get_model(model_id: str):
             description: Model with specified id not found or not accessible by current user
     """
     model_info: ModelInfo = ModelInfo.query.get_accessible_or_404(current_user.company_id, model_id)
-    interface_info = ModelInterfaceDefinition.from_graph(
-        rdflib.Graph().parse(location=model_info.gateway_url+"/api/ontology.ttl", format='turtle'),
+    model_graph = rdflib.Graph().parse(location=model_info.gateway_url+"/api/ontology.ttl")
+
+    # load all imported ontologies into same graph 
+    # TODO (and somehow keep track of default prefixes...)
+    # TODO handle recursive imports (circular?)
+    for imp in model_graph.objects(subject=URIRef(model_info.gateway_url+"/api/ontology.ttl#"), predicate=OWL.imports):
+        model_graph.parse(location=str(imp))
+
+    interface_info = ModelInterfaceDefinition.from_graph(model_graph,
         URIRef(model_info.ontology_uri))
 
     model_interface_info = ModelInfoWithParametersDtoSchema().dump(model_info)

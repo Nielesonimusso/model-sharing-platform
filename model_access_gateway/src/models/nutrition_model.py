@@ -13,9 +13,9 @@ class IngredientDto(BaseDto):
     amount = fields.Number(required=True) # mass(?)-percent
 
     __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-    __IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl#')
+    __IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#')
         # based on configuration! is different when not using docker
-        # requires ontology import of 'http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl'
+        # requires ontology import of 'http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl'
 
     units = dict(
         name = None,
@@ -28,7 +28,7 @@ class IngredientDto(BaseDto):
     references = dict(
         name = dict(
             source=__IDB.IngredientDatabase,
-            chain=[__IDB.Ingredient]
+            property=__IDB.Ingredient
             # list of property chain
         ),
         amount = None
@@ -88,7 +88,7 @@ class NutritionModel(Model):
     @property
     def ontology_imports(self) ->  List[Tuple[rdflib.URIRef, str]]:
         return [
-            ('http://ingredient-access-gateway:5020/IngredientDatabase/ontology.ttl#', 'idb')
+            ('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#', 'idb')
         ]
 
     @property

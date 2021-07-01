@@ -71,7 +71,7 @@ class Model(metaclass=ABCMeta):
         og.namespace_manager.bind('table', TABLE)
         og.namespace_manager.bind('service', SERVICE)
         og.namespace_manager.bind('owl3', OWL3)
-        og.namespace_manager.bind('owl', OWL)
+        og.namespace_manager.bind('owl', OWL) # BUG should be included by default, but isnt?
 
         ### base definitions ###
         ## ontology definition ##
@@ -96,7 +96,7 @@ class Model(metaclass=ABCMeta):
                 for column_name, field_object in table_object._declared_fields.items()]
 
         def table_def_from_name_and_column_list(table_name, column_list, graph) -> None:
-            graph.add((ROOT[table_name], RDF.type, TABLE.DataTableClass))
+            graph.add((ROOT[table_name], RDF.type, TABLE.DataSchemaClass))
 
             for column_name, column_type in column_list:
                 column_uri = ROOT[table_name + "_" + column_name]
@@ -192,7 +192,7 @@ class Model(metaclass=ABCMeta):
                     referencePropertyChain = BNode()
                     Collection(graph, referencePropertyChain, [
                         ROOT[column_name + "Object"],
-                        *reference_defs[column_name]["chain"]
+                        reference_defs[column_name]["property"]
                     ])
 
                     graph.add((column_uri, OWL3.dataTypePropertyChain, referencePropertyChain))
