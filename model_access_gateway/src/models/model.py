@@ -59,7 +59,7 @@ class Model(metaclass=ABCMeta):
     def get_ontology(self) -> str:
         ROOT = Namespace('#')
         OM = Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-        OMX = Namespace('http://www.foodvoc.org/resource/InternetOfFood/')
+        OMX = Namespace('http://www.foodvoc.org/resource/InternetOfFood/omx/')
         TABLE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Table/')
         SERVICE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
         OWL3 = Namespace('http://www.foodvoc.org/resource/InternetOfFood/OntologyWebLanguage/') # BUG IMAGINARY OWL
