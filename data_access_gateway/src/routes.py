@@ -18,7 +18,7 @@ def get_data(data_source: str):
 def get_ontology(data_source: str):
     data_source_object = get_data_sources()[data_source]
     response = make_response(data_source_object.get_ontology(), 200)
-    response.mimetype = 'text/plain'
+    response.mimetype = 'text/turtle'
     return response
 
 

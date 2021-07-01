@@ -10,12 +10,18 @@ class BaseConfiguration():
     # DATA_SOURCE_FILE_PATHS = [os.path.join(PACKAGE_PATH, 'data/IngredientDatabase.csv'), 
         # os.path.join(PACKAGE_PATH, 'data/IngredientPropertyDatabase.csv')]
     COLUMN_TYPES = json.loads(os.getenv('COLUMN_TYPES',
-        json.dumps([dict(Ingredient='str', IngredientCode='str'), 
-                    dict(Ingredient='str',IngredientCode='str',IngredientProperty='str',
-                            ValueText='str',ValueNum='float',UnitOfMeasure='str')])))
-    # COLUMN_TYPES = [dict(Ingredient=str, IngredientCode=str), 
-        # dict(Ingredient=str,IngredientCode=str,IngredientProperty=str,
-            # ValueText=str,ValueNum=float,UnitOfMeasure=str)]
+        json.dumps([dict(
+            Ingredient=dict(data_type='str'),
+            IngredientCode=dict(data_type='str')), 
+                    dict(
+            Ingredient=dict(datatype='str'),
+            IngredientCode=dict(data_type='str'),
+            IngredientProperty=dict(data_type='str'),
+            ValueText=dict(data_type='str'),
+            ValueNum=dict(
+                data_type='float',
+                unit='UnitOfMeasure'),
+            UnitOfMeasure=dict(data_type='str'))])))
     ONTOLOGY_FILE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.getenv('ONTOLOGY_FILE_PATH', 'data/test-ontology.ttl'))
     # APPLICATION_BASE = 'http://data-access-gateway:5001'
     APPLICATION_BASE = os.getenv('APPLICATION_BASE', 'http://localhost:5020')
