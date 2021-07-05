@@ -19,13 +19,17 @@ def create_app() -> Flask:
     app.config.from_object(configuration)
 
     get_data_sources(app)
-    register_data_sources(app)
+    # register_data_sources(app)
 
     # enable CORS
     from flask_cors import CORS
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, send_wildcard=True)
 
     setup_cli(app)
+    app.config["REGISTERED"] = False
+    register_data_sources(app)
+    # register deregistration endpoint as well
+    # atexit.register(partial(deregister_on_exit, app))
 
     from data_access_gateway.src.routes import routes_blueprint
     app.register_blueprint(routes_blueprint, url_prefix='/api')
@@ -36,8 +40,9 @@ def create_app() -> Flask:
 def setup_cli(app: Flask):
     """Hookup methods with custom flask cli commands. Type ``flask --help`` to see these options."""
 
-    # @app.cli.command('seed-db')
-    # def seed_db():
+    @app.cli.command('seed-db')
+    def seed_db():
+        register_data_sources(app)
     #     """Initialized the database with ingredient data."""
     #     from data_access_gateway.src.data.db_init import DataGatewayDbInitialize
     #     DataGatewayDbInitialize().create_database(True, data_file_path=DefaultConfiguration.DATA_SOURCE_FILE_PATH)
@@ -62,7 +67,7 @@ def register_data_sources(app: Flask):
         api_check_endpoint = inof_base + '/api/own_data_sources'
         api_register_endpoint = inof_base + '/api/data_source'
 
-        data_sources = get_data_sources()
+        data_sources = get_data_sources(app)
         for data_source_name, data_source in data_sources.items():
             try:
                 check = requests.get(api_check_endpoint, headers=auth_token_header).json()
@@ -89,25 +94,24 @@ def register_data_sources(app: Flask):
             except RequestException as ex:
                 print(f"Could not register datasource {data_source_name}")
         
-        # register deregistration endpoint as well
-        atexit.register(partial(deregister_on_exit, app))
+        app.config["REGISTERED"] = True
+        
 
 def deregister_on_exit(app: Flask):
+    if app.config["REGISTERED"] and (auth_token_header := api_authorization_header(app)):
+        api_update_endpoint = app.config['INOF_BASE'] + '/api/data_source/'
+        price = app.config['ACCESS_PRICE']
+        application_base = app.config['APPLICATION_BASE'] + '/api/'
 
-    if auth_token_header := api_authorization_header(app):
-            api_update_endpoint = app.config['INOF_BASE'] + '/api/data_source/'
-            price = app.config['ACCESS_PRICE']
-            application_base = app.config['APPLICATION_BASE'] + '/api/'
-
-            data_sources = get_data_sources()
-            for data_source_name, data_source in data_sources.items():
-                try:
-                    print(requests.put(api_update_endpoint + data_source.id, json = dict(
-                        name = data_source_name,
-                        price = price,
-                        is_connected = False,
-                        gateway_url = application_base + data_source_name,
-                        ontology_uri = application_base + data_source_name + '/ontology.ttl#' + data_source_name
-                    ), headers=auth_token_header).json())
-                except RequestException as ex:
-                    print(f"Could not update connected state of data source {data_source_name}")
+        data_sources = get_data_sources(app)
+        for data_source_name, data_source in data_sources.items():
+            try:
+                print(requests.put(api_update_endpoint + data_source.id, json = dict(
+                    name = data_source_name,
+                    price = price,
+                    is_connected = False,
+                    gateway_url = application_base + data_source_name,
+                    ontology_uri = application_base + data_source_name + '/ontology.ttl#' + data_source_name
+                ), headers=auth_token_header).json())
+            except RequestException as ex:
+                print(f"Could not update connected state of data source {data_source_name}")

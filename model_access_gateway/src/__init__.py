@@ -1,10 +1,10 @@
 import atexit
 from functools import partial
-import os
+import os, sys
 import traceback
 from typing import Dict
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, current_app, g
 import requests
 from requests.exceptions import RequestException
 from common_data_access.api_utils import api_authorization_header
@@ -32,16 +32,25 @@ def create_app() -> Flask:
     from .routes import routes_blueprint
     app.register_blueprint(routes_blueprint, url_prefix='/api')
 
-    register_model(app)
+    # register_model(app)
+    # enable CORS
+    from flask_cors import CORS
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, send_wildcard=True)
 
     setup_cli(app)
+    # register deregistration endpoint as well
+    app.config["REGISTERED"] = False
+    register_model(app)
+    # atexit.register(deregister_on_exit, app)
     # seed_db_init()
     setup_global_error_handlers(app)
     return app
 
 def get_model(app) -> Model:
-    global __model__
-    if '__model__' not in globals():
+    print("GET MODEL IMPL")
+
+    if '__model__' not in app.config:
+        print('NO MODEL EXISTS, CREATING...')
         models: Dict[str, Model] = dict(
             taste=TasteModel(app.config.get('TASTES_TO_CALCULATE', None)),
             nutrition=NutritionModel(),
@@ -51,9 +60,12 @@ def get_model(app) -> Model:
             dropletsize=None
         )
 
-        __model__ = models.get(app.config['MODEL'])
+        app.config['__model__'] = models.get(app.config['MODEL'])
 
-    return __model__
+    print("APP CONFIG MODEL OBJECT")
+    print(app.config['__model__'])
+
+    return app.config['__model__']
 
 def register_model(app: Flask):
     if auth_token_header := api_authorization_header(app):
@@ -87,17 +99,17 @@ def register_model(app: Flask):
                     json=model_info, headers=auth_token_header).json())
                 model.id = post_result['id']
                 print('registered model')
+
+            app.config["REGISTERED"] = True
         except RequestException as ex:
             print("Could not register model ")
 
-    # register deregistration endpoint as well
-    atexit.register(partial(deregister_on_exit, app))
-
 def deregister_on_exit(app: Flask):
-    if auth_token_header := api_authorization_header(app):
-        application_base = app.config['APPLICATION_BASE']
-
+    print(f'stopping with {app.config["REGISTERED"]}')
+    if app.config['REGISTERED'] and (auth_token_header := api_authorization_header(app)):
         model = get_model(app)
+        print(f'Deregistering model {model}')
+        application_base = app.config['APPLICATION_BASE']
 
         inof_base = app.config['INOF_BASE']
         api_update_endpoint = inof_base + '/api/model/'
@@ -114,9 +126,10 @@ def deregister_on_exit(app: Flask):
             print("Could not update connected state of model")
 
 
-def seed_db_init():
+def seed_db_init(app):
     from .db import GatewayDbInitialize
     GatewayDbInitialize().create_database(True)
+    register_model(app)
 
 def setup_cli(app: Flask):
     """Hookup methods with custom flask cli commands. Type ``flask --help`` to see these options."""
@@ -124,8 +137,7 @@ def setup_cli(app: Flask):
     @app.cli.command('seed-db')
     def seed_db():
         """Initialized the gateway database."""
-        from .db import GatewayDbInitialize
-        GatewayDbInitialize().create_database(True)
+        seed_db_init(current_app)
 
 
 

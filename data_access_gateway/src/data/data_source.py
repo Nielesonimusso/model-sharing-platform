@@ -103,17 +103,16 @@ class DataSource:
         return og.serialize(format='turtle')
 
 
-def get_data_sources(app=None) -> Dict[str, DataSource]:
-    global __ds__
-    if '__ds__' not in globals():
+def get_data_sources(app) -> Dict[str, DataSource]:
+    if '__ds__' not in app.config:
         if app is None:
             raise ValueError('Flask app required for initialization')
-        __ds__ = dict()
+        app.config['__ds__'] = dict()
         data_source_paths = app.config['DATA_SOURCE_FILE_PATHS']
         ontology_path = app.config['ONTOLOGY_FILE_PATH']
         for data_source_path, column_info in zip(data_source_paths, app.config['COLUMN_TYPES']):
             name = splitext(basename(data_source_path))[0]
             print(name)
-            __ds__[name] = DataSource(data_source_path, ontology_path, 
+            app.config['__ds__'][name] = DataSource(data_source_path, ontology_path, 
                 column_info, name)
-    return __ds__
+    return app.config['__ds__']

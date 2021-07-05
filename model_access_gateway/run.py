@@ -5,7 +5,7 @@ from flask.globals import _app_ctx_stack
 from concurrent.futures import Future
 
 
-from .src import create_app
+from .src import create_app, deregister_on_exit, get_model
 class ContextThreadPoolExecutor(ThreadPoolExecutor):
 
     def __init__(self, max_workers: Optional[int] = None, thread_name_prefix: str = '', 
@@ -33,5 +33,8 @@ def shared_scheduler() -> ContextThreadPoolExecutor:
 
 def run_gateway():
     app = create_app()
-    with shared_scheduler():
-        app.run(host=os.getenv('FLASK_RUN_HOST', '0.0.0.0'), port=int(os.getenv('FLASK_RUN_PORT', '5001')))
+    try:
+        with shared_scheduler():
+            app.run(host=os.getenv('FLASK_RUN_HOST', '0.0.0.0'), port=int(os.getenv('FLASK_RUN_PORT', '5001')))
+    finally:
+        deregister_on_exit(app)

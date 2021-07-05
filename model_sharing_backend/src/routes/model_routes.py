@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, current_user
 from marshmallow import ValidationError
 import rdflib
-from rdflib.namespace import OWL
+from rdflib.namespace import Namespace, OWL
 from rdflib.term import URIRef
 from werkzeug.exceptions import abort
 
@@ -205,6 +205,19 @@ def get_model(model_id: str):
     """
     model_info: ModelInfo = ModelInfo.query.get_accessible_or_404(current_user.company_id, model_id)
     model_graph = rdflib.Graph().parse(location=model_info.gateway_url+"/api/ontology.ttl")
+
+    # bind prefixes to graph (to make sure queries actually work)
+    SERVICE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
+    TABLE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Table/')
+    OM = Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+    OMX = Namespace('http://www.foodvoc.org/resource/InternetOfFood/omx/')
+    OWL3 = Namespace('http://www.foodvoc.org/resource/InternetOfFood/OntologyWebLanguage/') # BUG IMAGINARY OWL
+
+    model_graph.namespace_manager.bind('service', SERVICE)
+    model_graph.namespace_manager.bind('table', TABLE)
+    model_graph.namespace_manager.bind('om', OM)
+    model_graph.namespace_manager.bind('omx', OMX)
+    model_graph.namespace_manager.bind('owl3', OWL3)
 
     # load all imported ontologies into same graph 
     # TODO (and somehow keep track of default prefixes...)

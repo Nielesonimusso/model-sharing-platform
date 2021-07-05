@@ -3,6 +3,7 @@ from flask.helpers import make_response
 from flask_jwt_extended import jwt_required, current_user
 from marshmallow.exceptions import ValidationError
 import rdflib
+from rdflib.namespace import Namespace
 
 import requests
 from datetime import datetime
@@ -93,9 +94,25 @@ def get_data_source(data_source_id: str):
     data_source_info = DataSourceInfo.query.get_created_by_or_404(current_user.id, data_source_id)
 
     # include datasource table 
-    data_source_table = TableDefinition.from_graph(
-        rdflib.Graph().parse(location=data_source_info.gateway_url+'/ontology.ttl', format="turtle"),
+    data_source_graph = rdflib.Graph().parse(location=data_source_info.gateway_url+'/ontology.ttl', format="turtle")
+    # TODO potentially handle imports if those are encountered
+    
+    # add namespaces used in queries
+    SERVICE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
+    TABLE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Table/')
+    OM = Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+    OMX = Namespace('http://www.foodvoc.org/resource/InternetOfFood/omx/')
+    OWL3 = Namespace('http://www.foodvoc.org/resource/InternetOfFood/OntologyWebLanguage/') # BUG IMAGINARY OWL
+
+    data_source_graph.namespace_manager.bind('service', SERVICE)
+    data_source_graph.namespace_manager.bind('table', TABLE)
+    data_source_graph.namespace_manager.bind('om', OM)
+    data_source_graph.namespace_manager.bind('omx', OMX)
+    data_source_graph.namespace_manager.bind('owl3', OWL3)
+
+    data_source_table = TableDefinition.from_graph(data_source_graph, 
         rdflib.URIRef(data_source_info.ontology_uri))
+
 
     data_source_info_table = DataSourceInfo.DataSourceInfoDbSchema(context={'company_id': current_user.company_id}).dump(data_source_info)
     data_source_info_table.update(TableDefinitionSchema().dump(data_source_table))
