@@ -75,6 +75,7 @@ class ArgumentBinding(BaseModel):
     simulation_id = _db.Column(UUID(as_uuid=True), _db.ForeignKey('simulations.id'))
     length = _db.Column(_db.Integer)
     model_name = _db.Column(_db.String)
+    model_uri = _db.Column(_db.String)
     argument_uri = _db.Column(_db.String)
     argument_name = _db.Column(_db.String)
     columns = _db.relationship('ColumnBinding', cascade='delete, save-update')
@@ -82,6 +83,7 @@ class ArgumentBinding(BaseModel):
     class ArgumentBindingDtoSchema(DbSchema):
         length = fields.Integer()
         model_name = fields.String()
+        model_uri = fields.String()
         argument_uri = fields.String()
         argument_name = fields.String()
         columns = fields.List(fields.Nested(ColumnBinding.ColumnBindingDtoSchema))
