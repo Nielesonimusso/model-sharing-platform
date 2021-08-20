@@ -15,9 +15,14 @@ class DataSourceInfoQuery(PermissionFilteredQuery):
         return q.all()
 
     def get_data_accessible_or_404(self, company_id, data_source_id):
-        entities = self.get_all_data_accessible_by(company_id, self._entity_with_owner_and_creator().id == data_source_id)
+        entities = self.get_all_data_accessible_by(company_id, 
+            self._entity_with_owner_and_creator().id == data_source_id)
         if len(entities) == 0:
-            abort(404, description='not found')
+            # try match for ontology uri instead of database id
+            entities = self.get_all_data_accessible_by(company_id, 
+                self._entity_with_owner_and_creator().ontology_uri == data_source_id)
+            if len(entities) == 0:
+                abort(404, description='not found')
         return entities[0]
     
     def _has_permission_condition(self, entity, company_id, permission_type=None, *additional_conditions):

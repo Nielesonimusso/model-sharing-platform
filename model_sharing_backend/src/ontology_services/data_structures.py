@@ -40,10 +40,11 @@ class TableDefinition:
     #region query_methods
     @staticmethod
     def _is_unit_query(graph, column_node):
-        return bool(graph.query(f"""ASK {{ 
+        query = f"""ASK {{ 
     ?amount a table:InterfaceObjectProperty ; 
         omx:isQuantityPropertyOf [ omx:hasNumericalValueProperty {column_node.n3()} ] . 
-}}"""))
+}}"""
+        return bool(graph.query(query))
 
     @staticmethod
     def _is_fixed_unit_query(graph, column_node):

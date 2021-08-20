@@ -20,6 +20,25 @@ def run_simulation(simulation: Simulation):
                                              owner=current_user.company, simulation_id=simulation.id,
                                              executed_models=[])
 
+    # TODO get list of models to run (incomplete)
+    # TODO make data structure containing all data related to simulation [grouped by source] -> [with metadata!]
+    # {
+    #   source: {
+    #       data: [{...},...], <- fetched (gateway_service.py)
+    #       metadata: {...} <- interpreted ontology (data_structures.py)
+    #   }  
+    # }
+        # TODO "fixed" sources (part of simulation definition)
+        # TODO data sources
+        # TODO model outputs (filled in once model is completed)
+    # TODO loop over incomplete model list:
+        # TODO get simulation bindings of model
+        # TODO check whether data for all bindings is available =!> put model at end of incomplete model list
+        # TODO build model input data using bindings
+        # TODO run model with input data
+        # TODO store model output in data structure
+    # TODO leave loop with error if no models have all data available
+
     # get all bindings
     # fill all bindings (if possible)
         # if multiple columns from same source, then use label (ie "primary key") and match the others

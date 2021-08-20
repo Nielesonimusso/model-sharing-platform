@@ -8,6 +8,7 @@ from sqlalchemy.orm import load_only
 from common_data_access.base_schema import BaseModel, DbSchema
 from common_data_access.db import create_db_connection
 from common_data_access.dtos import BaseDto, ModelResultDtoSchema, ModelRunStatusDtoSchema, NotEmptyString
+from model_sharing_backend.src.ontology_services.data_structures import ColumnDefinitionSchema
 from .association_models import model_simulation_association, data_source_simulation_association
 from .base_model import BaseDbSchemaWithOwnerAndCreator, BaseModelWithOwnerAndCreator
 from .model_info import ModelInfo, ModelBasicInfoReadonlyField
@@ -20,7 +21,7 @@ _db = create_db_connection()
 class SimulationBindingTypes(Enum):
     DATA_SOURCE = 'data'
     MODEL = 'model'
-    FIXED = 'fixed'
+    INPUT = 'input'
 
 
 class ColumnBinding(BaseModel):
@@ -35,10 +36,9 @@ class ColumnBinding(BaseModel):
     source_column_name = _db.Column(_db.String, nullable=True)
     source_column_uri = _db.Column(_db.String, nullable=True)
     source_type = _db.Column(_db.Enum(SimulationBindingTypes), nullable=False, 
-        default=SimulationBindingTypes.FIXED)
+        default=SimulationBindingTypes.INPUT)
 
-    target_column_name = _db.Column(_db.String)
-    target_column_uri = _db.Column(_db.String)
+    target_column = _db.Column(_db.PickleType)
 
     class ColumnBindingDtoSchema(DbSchema):
         source_name = fields.String()
@@ -50,8 +50,7 @@ class ColumnBinding(BaseModel):
         source_type = fields.Str(required=True,
             validate=validate.OneOf([sbt.value for sbt in SimulationBindingTypes]))
         
-        target_column_name = fields.String()
-        target_column_uri = fields.String(required=True)
+        target_column = fields.Nested(ColumnDefinitionSchema)
 
         def __init__(self, *args, **kwargs):
             super().__init__(ColumnBinding, *args, **kwargs)
