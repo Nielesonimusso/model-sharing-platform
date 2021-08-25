@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from functools import reduce
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 from flask import current_app
 
 from logging import getLogger
@@ -24,7 +24,7 @@ class Model(metaclass=ABCMeta):
         self._id = id
 
     @abstractmethod
-    def run_model(self, input) -> List[dict]:
+    def run_model(self, input) -> Dict[str, List[dict]]:
         pass
 
     @property

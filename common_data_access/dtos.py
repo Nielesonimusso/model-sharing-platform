@@ -46,8 +46,9 @@ class ModelRunStatus(Enum):
 
 class RunModelDtoSchema(BaseDto):
     simulation_id = fields.Str()
-    # created_on = fields.DateTime()
-    # created_by = fields.Str()
+    created_on = fields.DateTime()
+    created_by = fields.Str()
+    data = fields.Dict()
 
 
 class ModelRunStatusDtoSchema(BaseDto):
@@ -61,7 +62,7 @@ class ModelResultDtoSchema(BaseDto):
     created_on = fields.DateTime()
     ran_on = fields.DateTime()
     status = fields.Str(validate=validate.OneOf([a.value for a in ModelRunStatus]))
-    result = fields.List(fields.Dict())
+    result = fields.Dict(fields.Str(), fields.List(fields.Dict()))
 
 
 class GatewayPaths:

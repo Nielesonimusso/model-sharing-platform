@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import dataclasses
 from enum import Enum
+from functools import wraps
+import threading
 from typing import List, Optional, Union
 from marshmallow import fields, validate
 from marshmallow.decorators import post_load, pre_dump
@@ -32,13 +34,22 @@ class ColumnDefinition:
     referenced_schema: Union['TableDefinition', List[str]] = None
     referenced_objects: List[dict] = dataclasses.field(default_factory=list)
 
+lock: threading.Lock = threading.Lock()
 @dataclass
 class TableDefinition:
     uri: str
     columns: List[ColumnDefinition]
 
+    def with_lock(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            with lock:
+                return func(*args, **kwargs)
+        return wrapper
+
     #region query_methods
     @staticmethod
+    @with_lock
     def _is_unit_query(graph, column_node):
         query = f"""ASK {{ 
     ?amount a table:InterfaceObjectProperty ; 
@@ -47,6 +58,7 @@ class TableDefinition:
         return bool(graph.query(query))
 
     @staticmethod
+    @with_lock
     def _is_fixed_unit_query(graph, column_node):
         return bool(graph.query(f"""ASK {{ 
     ?amount a table:InterfaceObjectProperty ;
@@ -55,6 +67,7 @@ class TableDefinition:
 }}"""))
 
     @staticmethod
+    @with_lock
     def _is_same_table_unit_query(graph, column_node, table_node):
         return bool(graph.query(f"""ASK {{ 
     ?amount a table:InterfaceObjectProperty ;
@@ -64,6 +77,7 @@ class TableDefinition:
 }}"""))
 
     @staticmethod
+    @with_lock
     def _get_unit(graph, column_node, table_node, type: ColumnReferenceType):
         if type is ColumnReferenceType.FIXED:
             return next(str(u[0]) for u in graph.query(f""" SELECT ?unit WHERE {{
@@ -83,6 +97,7 @@ class TableDefinition:
     ?unit rdfs:domain ?source . }}"""))
 
     @staticmethod
+    @with_lock
     def _is_reference(graph, column_node):
         return bool(graph.query(f"""ASK {{ 
     {column_node.n3()} owl3:dataTypePropertyChain ?x . 
@@ -94,6 +109,7 @@ class TableDefinition:
 }}"""))
 
     @staticmethod
+    @with_lock
     def _is_table_reference(graph, column_node):
         return bool(graph.query(f"""ASK {{ 
     {column_node.n3()} owl3:dataTypePropertyChain ?x . 
@@ -103,6 +119,7 @@ class TableDefinition:
 }}"""))
 
     @staticmethod
+    @with_lock
     def _get_reference_uris(graph, column_node):
         return next(list(map(str, r)) for r in graph.query(f"""SELECT ?object ?property WHERE {{
     {column_node.n3()} owl3:dataTypePropertyChain ?x . 
@@ -114,6 +131,7 @@ class TableDefinition:
 }}"""))
 
     @staticmethod
+    @with_lock
     def _get_reference_properties(graph, column_node):
         return list(str(p[0]) for p in graph.query(f"""SELECT ?property WHERE {{
     {column_node.n3()} owl3:dataTypePropertyChain ?x . 

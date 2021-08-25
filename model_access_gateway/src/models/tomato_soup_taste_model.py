@@ -68,7 +68,7 @@ class TasteDto(BaseDto):
     )
 
 class TasteOutputDto(BaseDto):
-    TasteTable = fields.Nested(TasteDto, many=True)
+    TasteTable = fields.Nested(TasteDto, many=True, required=True)
 
 class TasteModel(Model):
     
@@ -103,9 +103,8 @@ class TasteModel(Model):
         return 3.5
 
     def run_model(self, input) -> list:
-        ingredients = [get_ingredient_properties(i.company_code) for i in input.IngredientsTable]
-
-#def calculate_taste(recipe, ingredients: List, tastes_to_calculate: List[str] = None) -> List[TasteDto]:
+        ingredients = [get_ingredient_properties(i.name) for i in input.IngredientsTable]
+        
         tastes_to_calculate = self.tastes_to_calculate or ['sweetness', 'sourness', 'saltiness', 'tomato taste']
         product_density = 1
         water_to_add = 1000 - sum(ing.amount for ing in input.IngredientsTable) * product_density
@@ -114,9 +113,9 @@ class TasteModel(Model):
             ing.amount = ing.amount * input.DosageTable[0].dosage / 100
             ing.amount_unit = 'gram'
 
-            ingredient = next(filter(lambda i: i.company_code == ing.company_code, ingredients), None)
+            ingredient = next(filter(lambda i: i.name == ing.name, ingredients), None)
             if ingredient == None:
-                raise Exception(f'ingredient with code {ing.company_code} not found')
+                raise Exception(f'ingredient with code {ing.name} not found')
 
             for prp in ingredient.ingredient_properties:
                 prp_in_recipe = ing.amount * prp.value / 100
@@ -147,7 +146,7 @@ class TasteModel(Model):
                                 taste_value=self.calculate_tomato_taste(total_ingredient_properties.get('Protein', 0)),
                                 description='Sensory scale (0-100)'))
 
-        return tastes
+        return dict(TasteTable=tastes)
 
 
     def calculate_sweetness(self, sucrose: float, fructose: float, glucose: float):

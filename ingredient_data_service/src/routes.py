@@ -16,7 +16,7 @@ def get_similar_ingredient(name: str):
                     Ingredient.IngredientSchema)
 
 
-@routes_blueprint.route('/get_ingredient/<code>', methods=['GET'])
-def get_ingredient(code: str):
-    return get_json(Ingredient.query.get_one_where_or_404(Ingredient.company_code == code),
+@routes_blueprint.route('/get_ingredient/<name>', methods=['GET'])
+def get_ingredient(name: str):
+    return get_json(Ingredient.query.get_one_where_or_404(Ingredient.name == name),
                     Ingredient.IngredientWithPropertiesSchema)

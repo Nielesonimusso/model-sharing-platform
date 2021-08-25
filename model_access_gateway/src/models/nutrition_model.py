@@ -154,4 +154,4 @@ class NutritionModel(Model):
                 nutrition_value=sum([x*y for x,y in zip(table, relevant_ingredients)]), 
                 nutrition_unit='kcal' if nutrition_name == "Energy" else 'gram'))
 
-        return nutritions
+        return dict(NutritionTable=nutritions)
