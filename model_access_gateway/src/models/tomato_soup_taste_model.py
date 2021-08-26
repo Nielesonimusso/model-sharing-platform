@@ -115,7 +115,7 @@ class TasteModel(Model):
 
             ingredient = next(filter(lambda i: i.name == ing.name, ingredients), None)
             if ingredient == None:
-                raise Exception(f'ingredient with code {ing.name} not found')
+                raise Exception(f'ingredient with name {ing.name} not found')
 
             for prp in ingredient.ingredient_properties:
                 prp_in_recipe = ing.amount * prp.value / 100

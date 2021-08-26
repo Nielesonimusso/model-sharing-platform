@@ -100,7 +100,7 @@ class NutritionModel(Model):
         return 4
 
     def run_model(self, input) -> list:
-        ingredients = [get_ingredient_properties(i.company_code) for i in input.IngredientsTable]
+        ingredients = [get_ingredient_properties(i.name) for i in input.IngredientsTable]
     
 # def calculate_nutrition(recipe, ingredients: List) -> list:
 
@@ -109,9 +109,9 @@ class NutritionModel(Model):
             ing.amount = ing.amount * input.DosageTable[0].dosage / 100
             ing.amount_unit = 'gram'
 
-            ingredient = next(filter(lambda i: i.company_code == ing.company_code, ingredients), None)
+            ingredient = next(filter(lambda i: i.name == ing.name, ingredients), None)
             if ingredient == None:
-                raise Exception(f'ingredient with code {ing.company_code} not found')
+                raise Exception(f'ingredient with name {ing.name} not found')
 
             for prp in ingredient.ingredient_properties:
                 prp_in_recipe = ing.amount * prp.value / 100
