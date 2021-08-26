@@ -6,6 +6,7 @@ import threading
 from typing import List, Optional, Union
 from marshmallow import fields, validate
 from marshmallow.decorators import post_load, pre_dump
+from unit_translation_component import Unit
 
 from marshmallow.schema import Schema
 import rdflib
@@ -28,6 +29,7 @@ class ColumnDefinition:
     unit_type: ColumnReferenceType = ColumnReferenceType.NONE
     unit_uri: str = ""
     unit_source_uri: str = ""
+    unit_label: str = ""
     reference_type: ColumnReferenceType = ColumnReferenceType.NONE
     referenced_property_uri: str = ""
     referenced_object_uri: str = ""
@@ -158,6 +160,7 @@ class TableDefinition:
             columnUnitType = ColumnReferenceType.NONE
             columnUnitUri = ""
             columnUnitSourceUri = ""
+            columnUnitLabel = ""
             # if there is a quantity that has this column as its numerical value
             if TableDefinition._is_unit_query(graph, column_node):
                 if TableDefinition._is_fixed_unit_query(graph, column_node):
@@ -169,6 +172,11 @@ class TableDefinition:
 
                 columnUnitUri, columnUnitSourceUri = TableDefinition._get_unit(
                     graph, column_node, table_node, columnUnitType)
+
+                if columnUnitType == ColumnReferenceType.FIXED:
+                    # also add unit label to fixed unit definition (for convenience)
+                    with lock:
+                        columnUnitLabel = Unit(columnUnitUri, internal=True).label
 
             ## references ##
             referenceType = ColumnReferenceType.NONE
@@ -192,7 +200,7 @@ class TableDefinition:
 
             tableColumns.append(ColumnDefinition(
                 columnUri, columnName, columnDatatype,
-                columnUnitType, columnUnitUri, columnUnitSourceUri,
+                columnUnitType, columnUnitUri, columnUnitSourceUri, columnUnitLabel,
                 referenceType, referencedPropertyUri, referencedObjectUri, 
                     referencedSchema, referencedObjects))
         
@@ -263,6 +271,7 @@ class ColumnDefinitionSchema(DataclassSchema):
         validate=validate.OneOf([a.value for a in ColumnReferenceType]))
     unit_uri = fields.String(default="")
     unit_source_uri = fields.String(default="")
+    unit_label = fields.String(default="")
     reference_type = fields.String(default=ColumnReferenceType.NONE.value, 
         validate=validate.OneOf([a.value for a in ColumnReferenceType]))
     referenced_property_uri = fields.String(default="")
