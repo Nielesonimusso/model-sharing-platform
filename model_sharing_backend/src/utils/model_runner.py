@@ -13,7 +13,7 @@ from model_sharing_backend.src.graph_db.queries.query_runner import SparQlRunner
 from model_sharing_backend.src.models.food_product_models import FoodProduct
 from model_sharing_backend.src.models.model_info import ModelInfo
 from model_sharing_backend.src.models.simulation import ArgumentBinding, ExecutedModel, ExecutedModelDtoSchema, ExecutedSimulation, ExecutedSimulationDtoSchema, Simulation, SimulationBindingTypes
-from model_sharing_backend.src.ontology_services.data_structures import TableDefinition
+from model_sharing_backend.src.ontology_services.data_structures import ColumnReferenceType, TableDefinition
 from model_sharing_backend.src.utils import gateway_service
 
 
@@ -42,8 +42,8 @@ def run_simulation(simulation: Simulation):
         # loop over incomplete models
         for incomplete_model in (model for model in simulation.models if 
         not any((c_model.id == model.id for c_model in complete_models_list))):
-                print("running model", incomplete_model.name)
-            # try:
+            print("running model", incomplete_model.name)
+            try:
                 # check access rights
                 if incomplete_model.owner_id == current_user.company_id or any(
                 filter(lambda p: p.company_id == current_user.company_id, incomplete_model.permissions)):
@@ -56,14 +56,29 @@ def run_simulation(simulation: Simulation):
                     # add model results to simulation_data (for use by other models)
                     model_results = gateway_service.get_model_run_result(incomplete_model.gateway_url,
                         executed_model.client_run_id)
-                    model_metadata = dict() # TODO add metadata from model outputs
-                    simulation_data[incomplete_model.ontology_uri] = dict(
-                        data=model_results,
-                        metadata=model_metadata
-                    )
+                    model_metadata = gateway_service.fetch_model_interface_definition(incomplete_model.gateway_url + '/api', 
+                        incomplete_model.ontology_uri)
+                    for argument_name in model_results.result:
+                        # TODO get actual data and models per-argument from model_results and model_metadata
+                        try:
+                            argument_data = model_results.result[argument_name]
+                            argument_meta = next(md for md in model_metadata.outputs if md.name == argument_name)
+                            argument_uri = argument_meta.uri
+                            argument_metadata = TableDefinition(
+                                uri=argument_meta.type_uri, # type uri!
+                                columns=argument_meta.columns) 
+
+                            simulation_data[argument_uri] = dict(
+                                data=argument_data,
+                                metadata=argument_metadata
+                            )
+                        except Exception as e:
+                            print(e)
+                            continue # skip if failure (will reflect further on)
                     
-            # except Exception as ex:
-                # pass #handle problem with preparing inputs (incomplete data for example)
+            except Exception as ex:
+                raise Exception from ex
+                pass #handle problem with preparing inputs (incomplete data for example)
         if len(complete_models_list) <= previous_complete_length:
             print("some models left that do not complete; failing them")
             # if no more models completed this loop, cancel remaining and set errors
@@ -147,11 +162,51 @@ def prepare_model_inputs(model_bindings: Generator[ArgumentBinding, None, None],
             if column_binding.source_type == SimulationBindingTypes.INPUT:
                 # directly gather column data from source array
                 argument_per_column[column_binding.target_column.name] = column_binding.source_name.split('|')
+                # no unit conversion, since "input" type forces target unit
             else:
                 # TODO gather data from available_data, if not available then raise exception
-                pass
+                source_argument_uri = column_binding.source_argument_uri
+                source_data = available_data[source_argument_uri]["data"] # will throw if unavailable TODO maybe rethrow?
+                argument_per_column[column_binding.target_column.name] = \
+                    [row[column_binding.source_column_name] for row in source_data]
+                # unit conversion using other column in data
+                # check whether this column is value of unit*value product
+                source_metadata = next(cd for cd in available_data[source_argument_uri]["metadata"].columns
+                    if str(cd.name) == column_binding.source_column_name)
 
-            # TODO apply unit conversion on column data
+                source_unit_type = source_metadata.unit_type
+                target_unit_type = ColumnReferenceType[column_binding.target_column.unit_type.upper()]
+                if (not source_unit_type is ColumnReferenceType.NONE) and \
+                    (not target_unit_type is ColumnReferenceType.NONE):
+                    # perform unit conversion (only possible when unit of both is known)
+                    # get source units...
+                    source_units = []
+                    source_is_uri = False
+                    if source_unit_type is ColumnReferenceType.FIXED:
+                        source_units = [str(source_metadata.unit_uri)] * len(source_data)
+                        source_is_uri = True
+                    if source_unit_type is ColumnReferenceType.COLUMN:
+                        source_unit_column = next(str(cd.name) for cd in available_data[source_argument_uri]["metadata"].columns 
+                            if str(cd.uri) == str(source_metadata.unit_uri)) # BUG assuming unit source = source
+                        source_units = [row[source_unit_column] for row in source_data]
+                    # TODO if source_unit_type is ColumnReferenceType.CONCEPT:
+
+                    # get target units...
+                    target_units = []
+                    target_is_uri = False
+                    if target_unit_type is ColumnReferenceType.FIXED:
+                        target_units = [str(column_binding.target_column.unit_uri)] * len(source_data) 
+                        target_is_uri = True
+                    # TODO if target_unit_type is ColumnReferenceType.COLUMN:
+                        # ... what would be the source of the unit column?
+                    # TODO if target_unit_type is ColumnReferenceType.CONCEPT:
+
+                    # TODO unit conversion using ontology concept
+                    argument_per_column[column_binding.target_column.name] = \
+                        [__convert_source_to_target_unit(*c) for c in 
+                            zip(argument_per_column[column_binding.target_column.name],
+                            source_units, [source_is_uri] * len(source_data),
+                            target_units, [target_is_uri] * len(source_data))]
 
         # length of argument is the shortest of the columns 
         argument_length = min(len(arg_data) for arg_data in argument_per_column.values())
@@ -161,9 +216,6 @@ def prepare_model_inputs(model_bindings: Generator[ArgumentBinding, None, None],
             for argument_column_name, argument_column_values in argument_per_column.items():
                 row_dict[argument_column_name] = argument_column_values[row]
             model_input[argument_binding.argument_name].append(row_dict)
-
-    # TODO unit conversion
-    target_unit = column_binding.target_column.unit_uri # BUG NAIVE only for unit_type = "fixed"
 
     ### unit_type = none|fixed|column|concept
     ### unit_type = none -> unit-less: never convert
@@ -196,3 +248,14 @@ def _convert_param_to_input_unit(param: dict, model_input: GraphDbModelParameter
         param['amount'] = param_value.to_unit(input_unit, Values(dosage, dosage_unit))
         param['amount_unit'] = input_unit.label
     return param
+
+def __convert_source_to_target_unit(value: float, 
+        source_unit: str, source_is_uri: bool, 
+        target_unit: str, target_is_uri: bool) -> float:
+    source = Unit(source_unit, internal=source_is_uri)
+    target = Unit(target_unit, internal=target_is_uri)
+    if source != target:
+        source_value = Values(value, source)
+        return source_value.to_unit(target)
+    else:
+        return value

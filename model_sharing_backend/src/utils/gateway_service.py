@@ -1,5 +1,7 @@
 import sys
+from typing import Type
 import rdflib
+from rdflib.graph import Graph
 from rdflib.namespace import Namespace
 
 import requests
@@ -7,7 +9,7 @@ from requests.exceptions import RequestException
 
 from common_data_access.dtos import GatewayPaths, ModelResultDtoSchema, ModelRunStatusDtoSchema
 from model_sharing_backend.src.models.simulation import ModelRunStatusWithModelIdDtoSchema
-from model_sharing_backend.src.ontology_services.data_structures import TableDefinition
+from model_sharing_backend.src.ontology_services.data_structures import ArgumentDefinition, ColumnDefinition, ModelInterfaceDefinition, TableDefinition
 
 
 def request_model_run(gateway_url: str, data: any):
@@ -44,29 +46,39 @@ def fetch_data_source_data(gateway_url: str):
         print(f'error while communicating {gateway_url}. {str(e)}', file=sys.stdout)
         raise e
     
-def fetch_data_source_metadata(gateway_url: str, ontology_uri: str):
-    try:
-        data_source_graph = rdflib.Graph().parse(location=gateway_url+'/ontology.ttl', format="turtle")
-        # TODO potentially handle imports if those are encountered
-        
-        # add namespaces used in queries
-        SERVICE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
-        TABLE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Table/')
-        OM = Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-        OMX = Namespace('http://www.foodvoc.org/resource/InternetOfFood/omx/')
-        OWL3 = Namespace('http://www.foodvoc.org/resource/InternetOfFood/OntologyWebLanguage/') # BUG IMAGINARY OWL
+def fetch_data_source_metadata(gateway_url: str, ontology_uri: str) -> TableDefinition:
+    return __parse_graph_node(__load_graph(gateway_url+'/ontology.ttl'),
+        ontology_uri, TableDefinition)
 
-        data_source_graph.namespace_manager.bind('service', SERVICE)
-        data_source_graph.namespace_manager.bind('table', TABLE)
-        data_source_graph.namespace_manager.bind('om', OM)
-        data_source_graph.namespace_manager.bind('omx', OMX)
-        data_source_graph.namespace_manager.bind('owl3', OWL3)
+def fetch_argument_definition(gateway_url: str, ontology_uri: str) -> ArgumentDefinition:
+    return __parse_graph_node(__load_graph(gateway_url+'/ontology.ttl'),
+        ontology_uri, ArgumentDefinition)
 
-        return TableDefinition.from_graph(data_source_graph, 
-            rdflib.URIRef(ontology_uri))
-    except requests.RequestException as e:
-        raise e
+def fetch_model_interface_definition(gateway_url: str, ontology_uri: str) -> ModelInterfaceDefinition:
+    return __parse_graph_node(__load_graph(gateway_url+'/ontology.ttl'),
+        ontology_uri, ModelInterfaceDefinition)
 
+def __parse_graph_node(graph: Graph, ontology_uri: str, node_type: Type):
+    return node_type.from_graph(graph, rdflib.URIRef(ontology_uri))
+
+def __load_graph(graph_url: str) -> Graph:
+    graph = rdflib.Graph().parse(location=graph_url, format="turtle")
+    # TODO potentially handle imports if those are encountered
+    
+    # add namespaces used in queries
+    SERVICE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Service/')
+    TABLE = Namespace('http://www.foodvoc.org/resource/InternetOfFood/Table/')
+    OM = Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+    OMX = Namespace('http://www.foodvoc.org/resource/InternetOfFood/omx/')
+    OWL3 = Namespace('http://www.foodvoc.org/resource/InternetOfFood/OntologyWebLanguage/') # BUG IMAGINARY OWL
+
+    graph.namespace_manager.bind('service', SERVICE)
+    graph.namespace_manager.bind('table', TABLE)
+    graph.namespace_manager.bind('om', OM)
+    graph.namespace_manager.bind('omx', OMX)
+    graph.namespace_manager.bind('owl3', OWL3)
+
+    return graph
 
 def __make_request(url: str, method: any, **kwargs):
     try:
