@@ -142,6 +142,33 @@ class TableDefinition:
     ?property rdfs:domain ?object .
 }}"""))
 
+    @staticmethod
+    @with_lock
+    def _get_referenced_objects(graph, column_node) -> List[dict]:
+        objects = list(str(r[0]) for r in graph.query(f"""SELECT ?object WHERE {{
+    {column_node.n3()} owl3:dataTypePropertyChain ?x . 
+    ?x rdf:first ?objref .
+    ?objref rdfs:range ?objclass .
+    ?object a ?objclass .
+}}"""))
+        properties = list(str(r[0]) for r in graph.query(f"""SELECT ?property WHERE {{
+    {column_node.n3()} owl3:dataTypePropertyChain ?x . 
+    ?x rdf:first ?objref .
+    ?objref rdfs:range ?objclass .
+    ?property rdfs:domain ?objclass .
+}}"""))
+        value_query = """SELECT ?value WHERE {{
+    {object} {property} ?value .
+}}"""
+        object_list = list()
+        for obj in objects:
+            object_dict = dict()
+            for prop in properties:
+                property_value = list(str(r[0]) for r in graph.query(value_query.format(object=obj, property=prop)))
+                object_dict[prop] = property_value
+            object_list.append(object_dict)
+        return object_list
+
     #endregion query_methods
 
     @staticmethod
@@ -193,6 +220,8 @@ class TableDefinition:
                 else: # treat reference as concept
                     referenceType = ColumnReferenceType.CONCEPT
                     referencedSchema = TableDefinition._get_reference_properties(graph, column_node)
+                    # BUG assume concepts are included with ontology
+                    referencedObjects = TableDefinition._get_referenced_objects(graph, column_node)
 
                 # TODO change the way reference is saved? NO because extra information is necessary?
                 # ...but filling in the data would require ontology to reference data source (mail!)

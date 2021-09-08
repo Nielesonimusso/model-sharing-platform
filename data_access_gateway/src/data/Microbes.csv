@@ -1,0 +1,5 @@
+Organism,Tref,z,logD,mu_max,Tmin,Topt,Tmax,pHmin,pHopt,pHmax,awmin,awopt
+E.coli,70,7,-0.5,2,10,32,40,4.5,7,8,0.92,1
+B.cereus,120,7,-1,2,10,32,50,4.5,6.5,9,0.9,1
+Salmonella,70,10,-0.7,2,10,32,45,4,6.5,9,0.9,1
+Listeria,70,10,-1,2,4,37,45,4,7,9.5,0.9,1

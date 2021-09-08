@@ -114,6 +114,7 @@ class Model(metaclass=ABCMeta):
                 if unit_defs[column_name] is not None: # there is a unit definition
                     column_uri = ROOT[table_name + "_" + column_name]
                     is_fixed = isinstance(unit_defs[column_name], rdflib.URIRef)
+                    from_ontology = isinstance(unit_defs[column_name], dict)
 
                     # quantity object-property (column_nameQuantity)
                     graph.add((ROOT[column_name + "Quantity"], RDF.type, TABLE.InterfaceObjectProperty))
