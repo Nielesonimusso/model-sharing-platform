@@ -258,8 +258,8 @@ class PasteurizationModel(Model):
 
             final_microbes.append(dict(
                 microbe = microbe_type,
-                amount = microbe_after_holding,
-                unit = 'log CFU/ml'
+                amount = 10**microbe_after_holding, # log CFU/ml -> CFU/ml
+                unit = 'CFU/ml'
             ))
 
         return dict(FinalMicrobes=final_microbes)

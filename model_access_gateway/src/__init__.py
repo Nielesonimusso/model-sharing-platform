@@ -13,6 +13,7 @@ from common_data_access.db import create_db_connection
 from model_access_gateway.src.models.model import Model
 from model_access_gateway.src.models.nutrition_model import NutritionModel
 from model_access_gateway.src.models.pasteurization_model import PasteurizationModel
+from model_access_gateway.src.models.shelflife_model import ShelflifeModel
 from model_access_gateway.src.models.tomato_soup_taste_model import TasteModel
 from .config import DefaultConfiguration, BaseConfiguration, TestConfiguration, DockerDeployConfiguration
 
@@ -56,7 +57,7 @@ def get_model(app) -> Model:
             taste=TasteModel(app.config.get('TASTES_TO_CALCULATE', None)),
             nutrition=NutritionModel(),
             pasteurization=PasteurizationModel(),
-            shelflife=None,
+            shelflife=ShelflifeModel(),
             calibration=None,
             dropletsize=None
         )
