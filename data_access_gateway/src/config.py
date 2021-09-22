@@ -36,7 +36,7 @@ class BaseConfiguration():
     # Internet of Food config
     #INOF_BASE = 'http://model-sharing-backend:5020'
     INOF_BASE = os.getenv('INOF_BASE', 'http://localhost:81')
-    API_TOKEN = 'inof1234hossain' # replace with api token of user
+    API_TOKEN = os.getenv('API_TOKEN', 'inof1234hossain') 
 
     # # SQLAlchemy config
     # SQLALCHEMY_TRACK_MODIFICATIONS = False

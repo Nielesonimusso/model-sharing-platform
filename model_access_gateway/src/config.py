@@ -10,7 +10,7 @@ class BaseConfiguration():
 
     APPLICATION_BASE = os.getenv('APPLICATION_BASE', 'http://localhost:5001')
     INOF_BASE = os.getenv('INOF_BASE', 'http://localhost:81')
-    API_TOKEN = 'inof1234hossain' # replace with api token of user
+    API_TOKEN = os.getenv('API_TOKEN', 'inof1234hossain')
 
     # SQLAlchemy config
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -20,7 +20,7 @@ class BaseConfiguration():
     SQLALCHEMY_ECHO = False
 
     # flask config
-    TESTING = False
+    TESTING = True
     SECRET_KEY = str(os.urandom(32))
     ENV = 'development'
     DEBUG = True

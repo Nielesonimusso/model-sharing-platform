@@ -43,7 +43,7 @@ class DockerDeployConfiguration(BaseConfiguration):
     SQLALCHEMY_DATABASE_URI = 'postgresql://admin:admin@db-container:5432/model_db'
     GRAPH_DB_SERVER_URL = 'http://graphdb-container:7200'
     GRAPH_DB_REPOSITORY_ID = 'INoF'
-    TESTING = False
-    DEBUG = False
+    # TESTING = False
+    # DEBUG = False
     SQLALCHEMY_ECHO = False
-    ENV = 'production'
+    # ENV = 'production'
