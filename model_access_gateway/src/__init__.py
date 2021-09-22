@@ -12,6 +12,7 @@ from common_data_access.api_utils import api_authorization_header
 from common_data_access.db import create_db_connection
 from model_access_gateway.src.models.model import Model
 from model_access_gateway.src.models.nutrition_model import NutritionModel
+from model_access_gateway.src.models.pasteurization_model import PasteurizationModel
 from model_access_gateway.src.models.tomato_soup_taste_model import TasteModel
 from .config import DefaultConfiguration, BaseConfiguration, TestConfiguration, DockerDeployConfiguration
 
@@ -54,7 +55,7 @@ def get_model(app) -> Model:
         models: Dict[str, Model] = dict(
             taste=TasteModel(app.config.get('TASTES_TO_CALCULATE', None)),
             nutrition=NutritionModel(),
-            pasteurization=None,
+            pasteurization=PasteurizationModel(),
             shelflife=None,
             calibration=None,
             dropletsize=None

@@ -221,6 +221,7 @@ class TableDefinition:
                     referenceType = ColumnReferenceType.CONCEPT
                     referencedSchema = TableDefinition._get_reference_properties(graph, column_node)
                     # BUG assume concepts are included with ontology
+                    # TODO could fail
                     referencedObjects = TableDefinition._get_referenced_objects(graph, column_node)
 
                 # TODO change the way reference is saved? NO because extra information is necessary?

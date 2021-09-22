@@ -78,7 +78,10 @@ class DataSource:
                 # isQuantityPropertyOf
                 quantity = BNode()
                 og.add((quantity, OMX.hasNumericalValueProperty, ROOT[col_name]))
-                og.add((quantity, OMX.hasUnitProperty, ROOT[col_info['unit']]))
+                if 'om_unit' in col_info and col_info['om_unit']:
+                    og.add((quantity, OMX.hasFixedUnit, OM[col_info['unit']]))
+                else:
+                    og.add((quantity, OMX.hasUnitProperty, ROOT[col_info['unit']]))
                 og.add((ROOT[col_name + 'Quantity'], OMX.isQuantityPropertyOf, quantity))
                 # value dataTypePropertyChain
                 valuePropertyChain = BNode()
@@ -88,15 +91,16 @@ class DataSource:
                     OM.hasNumericalValue
                 ])
                 og.add((ROOT[col_name], OWL3.dataTypePropertyChain, valuePropertyChain))
-                # unit dataTypePropertyChain
-                unitPropertyChain = BNode()
-                Collection(og, unitPropertyChain, [
-                    ROOT[col_name + "Quantity"],
-                    OM.hasValue, 
-                    OM.hasUnit,
-                    OM.symbol
-                ])
-                og.add((ROOT[col_info['unit']], OWL3.dataTypePropertyChain, unitPropertyChain))
+                if not 'om_unit' in col_info or not col_info['om_unit']:
+                    # unit dataTypePropertyChain if not OM unit
+                    unitPropertyChain = BNode()
+                    Collection(og, unitPropertyChain, [
+                        ROOT[col_name + "Quantity"],
+                        OM.hasValue, 
+                        OM.hasUnit,
+                        OM.symbol # BUG assumes unit always represented as symbol in data!
+                    ])
+                    og.add((ROOT[col_info['unit']], OWL3.dataTypePropertyChain, unitPropertyChain))
 
             #TODO handle references if required by data source
 
