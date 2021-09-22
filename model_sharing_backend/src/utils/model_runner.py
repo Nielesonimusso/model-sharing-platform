@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, Generator, List
 
-import requests
+import requests, sys
 from flask_jwt_extended import current_user
 from unit_translation_component import Unit, Values
 from unit_translation_component.exception import GenericException
@@ -38,11 +38,12 @@ def run_simulation(simulation: Simulation):
     print("entering while loop for simu")
     previous_complete_length = 0
     while len(complete_models_list) < len(simulation.models): 
-        print("loop", len(complete_models_list), len(simulation.models))
+        print("loop", len(complete_models_list), len(simulation.models), file=sys.stderr)
         # loop over incomplete models
         for incomplete_model in (model for model in simulation.models if 
         not any((c_model.id == model.id for c_model in complete_models_list))):
-            print("running model", incomplete_model.name)
+            print("running model", incomplete_model.name, file=sys.stderr)
+            print("simulation_data", simulation_data.keys(), file=sys.stderr)
             try:
                 # check access rights
                 if incomplete_model.owner_id == current_user.company_id or any(
@@ -59,22 +60,19 @@ def run_simulation(simulation: Simulation):
                     model_metadata = gateway_service.fetch_model_interface_definition(incomplete_model.gateway_url + '/api', 
                         incomplete_model.ontology_uri)
                     for argument_name in model_results.result:
-                        # TODO get actual data and models per-argument from model_results and model_metadata
-                        try:
-                            argument_data = model_results.result[argument_name]
-                            argument_meta = next(md for md in model_metadata.outputs if md.name == argument_name)
-                            argument_uri = argument_meta.uri
-                            argument_metadata = TableDefinition(
-                                uri=argument_meta.type_uri, # type uri!
-                                columns=argument_meta.columns) 
+                        # get data and models per-argument from model_results and model_metadata
+                        print("handling model output", argument_name, file=sys.stderr)
+                        argument_data = model_results.result[argument_name]
+                        argument_meta = next(md for md in model_metadata.outputs if str(md.name) == argument_name)
+                        argument_uri = argument_meta.uri
+                        argument_metadata = TableDefinition(
+                            uri=argument_meta.type_uri, # type uri!
+                            columns=argument_meta.columns) 
 
-                            simulation_data[argument_uri] = dict(
-                                data=argument_data,
-                                metadata=argument_metadata
-                            )
-                        except Exception as e:
-                            print(e)
-                            continue # skip if failure (will reflect further on)
+                        simulation_data[argument_uri] = dict(
+                            data=argument_data,
+                            metadata=argument_metadata
+                        )
                     
             except Exception as ex:
                 raise Exception from ex
@@ -255,6 +253,7 @@ def __convert_source_to_target_unit(value: float,
     source = Unit(source_unit, internal=source_is_uri)
     target = Unit(target_unit, internal=target_is_uri)
     if source != target:
+        # print(f'converting from {source_unit} ({source_is_uri}) to {target_unit} ({target_is_uri})', file=sys.stderr)
         source_value = Values(value, source)
         return source_value.to_unit(target)
     else:
