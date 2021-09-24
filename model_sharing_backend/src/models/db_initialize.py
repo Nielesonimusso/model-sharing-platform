@@ -35,7 +35,7 @@ class ModelDbInitialize(BaseDbInitialize):
         # USERS
         #
         password = b'inof1234'
-        u1, u2, u3, u4, tu5, tu6, tu7 = 'hossain', 'johndoe', 'janedoe', 'admin', 'test1_uni', 'test2_tue', 'test3_tue'
+        u1, u2, u3, u4, tu5, tu6, tu7 = 'hossain', 'niels', 'janedoe', 'admin', 'test1_uni', 'test2_tue', 'test3_tue'
         if User.query.filter(User.username == u1).count() == 0:
             user = User(username=u1, full_name='Hossain Muctadir', email='h.m.muctadir@tue.nl',
                         password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue, 
@@ -43,8 +43,8 @@ class ModelDbInitialize(BaseDbInitialize):
             user.save()
 
         if User.query.filter(User.username == u2).count() == 0:
-            user = User(username=u2, full_name='John Doe', email='johndoe@unilever.com',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_unilever, 
+            user = User(username=u2, full_name='Niels Rood', email='n.rood@tue.nl',
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue, 
                         api_key=password.decode('utf-8')+u2)
             user.save()
 
