@@ -92,7 +92,7 @@ def get_own_data_sources():
 @data_source_bp.route('/data_source/<data_source_id>', methods=['GET'])
 @jwt_required
 def get_data_source(data_source_id: str):
-    data_source_info = DataSourceInfo.query.get_created_by_or_404(current_user.id, data_source_id)
+    data_source_info = DataSourceInfo.query.get_data_accessible_or_404(current_user.id, data_source_id)
 
     # include datasource table 
     data_source_table = gateway_service.fetch_data_source_metadata(data_source_info.gateway_url, data_source_info.ontology_uri)
