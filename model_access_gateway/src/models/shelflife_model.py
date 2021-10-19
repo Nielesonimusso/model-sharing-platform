@@ -1,5 +1,5 @@
 import json, math
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from marshmallow import fields
 import rdflib
@@ -14,10 +14,11 @@ from math import log10 as log, exp
 
 import sys
 
+__OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+__MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
+
 class PSWaterActivityTableDto(BaseDto):
     product_water_activity = fields.Float() 
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
     units = dict(
         product_water_activity = None,
@@ -29,8 +30,6 @@ class PSWaterActivityTableDto(BaseDto):
 class PSpHTableDto(BaseDto):
     product_pH = fields.Float() 
 
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
         product_pH = __OM.Acidity,
     )
@@ -41,8 +40,6 @@ class PSpHTableDto(BaseDto):
 class SCTemperatureTableDto(BaseDto):
     shelf_temperature = fields.Float() 
 
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
         shelf_temperature = __OM.degreeCelcius,
     )
@@ -52,8 +49,6 @@ class SCTemperatureTableDto(BaseDto):
 
 class SCTimeTableDto(BaseDto):
     shelf_time = fields.Float() 
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
     units = dict(
         shelf_time = __OM.day,
@@ -66,9 +61,6 @@ class SCTimeTableDto(BaseDto):
 class MicrobeDto(BaseDto):
     microbe = fields.Str() 
     amount = fields.Float() 
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-    __MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
 
     units = dict(
         microbe = None,
@@ -87,8 +79,6 @@ class MicrobeUnitDto(BaseDto):
     microbe = fields.Str()
     amount = fields.Float()
     unit = fields.Str() # in practice always [colonyFormingUnitPerMillilitre (no log!)]
-
-    __MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
 
     units = dict(
         microbe = None, 
@@ -140,10 +130,10 @@ class ShelflifeModel(Model):
     def price(self) -> float:
         return 4.2
 
-    def run_model(self, input) -> list:
+    def run_model(self, input) -> Dict[str, List[dict]]:
         return self._calculate_shelflife(input)
 
-    def _calculate_shelflife(self, input) -> list:
+    def _calculate_shelflife(self, input) -> Dict[str, List[dict]]:
         try:
             print("parsing data", file=sys.stderr)
             data = self._parse_data(input)

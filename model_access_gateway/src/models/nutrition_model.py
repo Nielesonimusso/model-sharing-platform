@@ -1,5 +1,5 @@
 import json
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from marshmallow import fields
 import rdflib
@@ -8,12 +8,12 @@ from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
 from model_access_gateway.src.models.model import Model
 
+__OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+__IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#')
 class IngredientDto(BaseDto):
     name = fields.Str(required=True) # reference to IngredientDatabase.ingredient
     amount = fields.Number(required=True) # mass(?)-percent
 
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-    __IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#')
         # based on configuration! is different when not using docker
         # requires ontology import of 'http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl'
 
@@ -36,8 +36,6 @@ class IngredientDto(BaseDto):
 
 class DosageDto(BaseDto):
     dosage = fields.Number(required=True) # gram per liter
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
     units = dict(
         dosage = __OM.gramPerLitre
@@ -99,7 +97,7 @@ class NutritionModel(Model):
     def price(self) -> float:
         return 4
 
-    def run_model(self, input) -> list:
+    def run_model(self, input) -> Dict[str, List[dict]]:
         ingredients = [get_ingredient_properties(i.name) for i in input.IngredientsTable]
     
 # def calculate_nutrition(recipe, ingredients: List) -> list:

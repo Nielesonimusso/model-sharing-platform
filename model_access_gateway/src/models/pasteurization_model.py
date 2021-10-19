@@ -1,5 +1,5 @@
 import json, math
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from marshmallow import fields
 import rdflib
@@ -12,10 +12,12 @@ from .model import get_model_ontology_dependency
 
 import sys
 
+__OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+__HDB = rdflib.Namespace(get_model_ontology_dependency('hex'))
+__MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
+
 class PSFlowTableDto(BaseDto):
     product_flow = fields.Float() 
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
     units = dict(
         product_flow = __OM["kilogramPerSecond-Time"],
@@ -27,8 +29,6 @@ class PSFlowTableDto(BaseDto):
 class PSTemperatureTableDto(BaseDto):
     product_temperature = fields.Float() 
 
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
         product_temperature = __OM.degreeCelcius,
     )
@@ -38,8 +38,6 @@ class PSTemperatureTableDto(BaseDto):
 
 class PSDensityTableDto(BaseDto):
     product_density = fields.Float() 
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
     units = dict(
         product_density = __OM.kilogramPerLitre,
@@ -51,8 +49,6 @@ class PSDensityTableDto(BaseDto):
 class HTInternalDiameterTableDto(BaseDto):
     holding_tube_internal_diameter = fields.Float() 
 
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
         holding_tube_internal_diameter = __OM.millimetre,
     )
@@ -62,8 +58,6 @@ class HTInternalDiameterTableDto(BaseDto):
 
 class HTLengthTableDto(BaseDto):
     holding_tube_length = fields.Float() 
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
     units = dict(
         holding_tube_length = __OM.metre,
@@ -76,10 +70,6 @@ class HTLengthTableDto(BaseDto):
 class PasteurizationDto(BaseDto):
     hex_type = fields.Str() 
     outlet_temperature =  fields.Float() 
-
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-    # __HDB = rdflib.Namespace('http://microbe-hex-access-gateway:5020/api/Hex/ontology.ttl#')
-    __HDB = rdflib.Namespace(get_model_ontology_dependency('hex'))
 
     units = dict(
         hex_type = None,
@@ -98,10 +88,6 @@ class MicrobeDto(BaseDto):
     microbe = fields.Str() 
     amount = fields.Float() 
 
-    __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-    # __MDB = rdflib.Namespace('http://microbe-hex-access-gateway:5020/api/Microbes/ontology.ttl#')
-    __MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
-
     units = dict(
         microbe = None,
         amount = __OM.colonyFormingUnitPerMillilitre, # fixed unit (colonyFormingUnitPerMillilitre (no log!))
@@ -119,9 +105,6 @@ class MicrobeUnitDto(BaseDto):
     microbe = fields.Str()
     amount = fields.Float()
     unit = fields.Str() # in practice always [colonyFormingUnitPerMillilitre (no log!)]
-
-    # __MDB = rdflib.Namespace('http://microbe-hex-access-gateway:5020/api/Microbes/ontology.ttl#')
-    __MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
 
     units = dict(
         microbe = None, 
@@ -178,10 +161,10 @@ class PasteurizationModel(Model):
     def price(self) -> float:
         return 4
 
-    def run_model(self, input) -> list:
+    def run_model(self, input) -> Dict[str, List[dict]]:
         return self._calculate_pasteurisation(input)
 
-    def _calculate_pasteurisation(self, input) -> list:
+    def _calculate_pasteurisation(self, input) -> Dict[str, List[dict]]:
         try:
             print("parsing data", file=sys.stderr)
             data = self._parse_data(input)
@@ -192,7 +175,7 @@ class PasteurizationModel(Model):
             return result
         except Exception as ex:
             print(ex, file=sys.stderr)
-            return [dict(FinalMicrobes=[])]
+            return dict(FinalMicrobes=[])
 
 
     # Parse the input data to an object used for the calculations
