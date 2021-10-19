@@ -8,6 +8,7 @@ from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
 from model_access_gateway.src.models.model import Model
 from common_data_access import string_utils
+from .model import get_model_ontology_dependency
 
 from math import log10 as log, exp
 
@@ -67,7 +68,7 @@ class MicrobeDto(BaseDto):
     amount = fields.Float() 
 
     __OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-    __MDB = rdflib.Namespace('http://microbe-hex-access-gateway:5020/api/Microbes/ontology.ttl#')
+    __MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
 
     units = dict(
         microbe = None,
@@ -87,7 +88,7 @@ class MicrobeUnitDto(BaseDto):
     amount = fields.Float()
     unit = fields.Str() # in practice always [colonyFormingUnitPerMillilitre (no log!)]
 
-    __MDB = rdflib.Namespace('http://microbe-hex-access-gateway:5020/api/Microbes/ontology.ttl#')
+    __MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
 
     units = dict(
         microbe = None, 
@@ -128,8 +129,7 @@ class ShelflifeModel(Model):
     @property
     def ontology_imports(self) ->  List[Tuple[rdflib.URIRef, str]]:
         return [
-            ('http://microbe-hex-access-gateway:5020/api/Hex/ontology.ttl#', 'hdb'),
-            ('http://microbe-hex-access-gateway:5020/api/Microbes/ontology.ttl#', 'mdb')
+            (get_model_ontology_dependency('microbe'), 'mdb')
         ]
 
     @property

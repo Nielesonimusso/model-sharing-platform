@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from functools import reduce
+import json, os
 from typing import Dict, List, Tuple
 from flask import current_app
 
@@ -233,3 +234,6 @@ class Model(metaclass=ABCMeta):
         handle_interface_dto(self.output_dto, og, False)
 
         return og.serialize(format='turtle')
+
+def get_model_ontology_dependency(name: str) -> str:
+    return json.loads(os.getenv('MODEL_DEPENDENCY_GATEWAY_URLS', '{}')).get(name)
