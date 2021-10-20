@@ -8,21 +8,21 @@ from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
 from model_access_gateway.src.models.model import Model
 
-__OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-__IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#')
+OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#')
 class IngredientDto(BaseDto):
     name = fields.Str(required=True)
     amount = fields.Number(required=True) # mass(?)-percent
 
     units = dict(
         name = None,
-        amount = __OM.percent
+        amount = OM.percent
     )
 
     references = dict(
         name = dict(
-            source=__IDB.IngredientDatabase,
-            property=__IDB.Ingredient
+            source=IDB.IngredientDatabase,
+            property=IDB.Ingredient
             # list of property chain
         ),
         amount = None
@@ -32,7 +32,7 @@ class DosageDto(BaseDto):
     dosage = fields.Number(required=True) # gram per liter
 
     units = dict(
-        dosage = __OM.gramPerLitre
+        dosage = OM.gramPerLitre
     )
 
     references = dict(
@@ -52,7 +52,7 @@ class TasteDto(BaseDto):
 
     units = dict(
         taste_name = None,
-        taste_value = __OM['_0-100'],
+        taste_value = OM['_0-100'],
         description = None
     )
 

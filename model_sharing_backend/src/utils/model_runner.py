@@ -73,7 +73,10 @@ def run_simulation(simulation: Simulation):
                             data=argument_data,
                             metadata=argument_metadata
                         )
-                    
+            except KeyError as ex:
+                print(f"data (not yet) available when trying to run {incomplete_model.name}; skipping", 
+                    file=sys.stderr)
+                pass
             except Exception as ex:
                 raise Exception from ex
                 pass #handle problem with preparing inputs (incomplete data for example)

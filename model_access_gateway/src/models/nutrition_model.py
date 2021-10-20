@@ -8,8 +8,8 @@ from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
 from model_access_gateway.src.models.model import Model
 
-__OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-__IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#')
+OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+IDB = rdflib.Namespace('http://ingredient-access-gateway:5020/api/IngredientDatabase/ontology.ttl#')
 class IngredientDto(BaseDto):
     name = fields.Str(required=True) # reference to IngredientDatabase.ingredient
     amount = fields.Number(required=True) # mass(?)-percent
@@ -19,7 +19,7 @@ class IngredientDto(BaseDto):
 
     units = dict(
         name = None,
-        amount = __OM.percent
+        amount = OM.percent
         # amount = 'name' # local unit column
         # amount = rdflib.URIRef('URI of unit column') # for external unit column
             # would also require an ontology import of the source of the column
@@ -27,8 +27,8 @@ class IngredientDto(BaseDto):
 
     references = dict(
         name = dict(
-            source=__IDB.IngredientDatabase,
-            property=__IDB.Ingredient
+            source=IDB.IngredientDatabase,
+            property=IDB.Ingredient
             # list of property chain
         ),
         amount = None
@@ -38,7 +38,7 @@ class DosageDto(BaseDto):
     dosage = fields.Number(required=True) # gram per liter
 
     units = dict(
-        dosage = __OM.gramPerLitre
+        dosage = OM.gramPerLitre
     )
 
     references = dict(

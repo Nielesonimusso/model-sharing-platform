@@ -15,6 +15,8 @@ from model_access_gateway.src.models.nutrition_model import NutritionModel
 from model_access_gateway.src.models.pasteurization_model import PasteurizationModel
 from model_access_gateway.src.models.shelflife_model import ShelflifeModel
 from model_access_gateway.src.models.tomato_soup_taste_model import TasteModel
+from model_access_gateway.src.models.calibration_model import CalibrationModel
+from model_access_gateway.src.models.dropletsize_model import DropletSizeModel
 from .config import DefaultConfiguration, BaseConfiguration, TestConfiguration, DockerDeployConfiguration
 
 
@@ -58,8 +60,8 @@ def get_model(app) -> Model:
             nutrition=NutritionModel(),
             pasteurization=PasteurizationModel(),
             shelflife=ShelflifeModel(),
-            calibration=None,
-            dropletsize=None
+            calibration=CalibrationModel(),
+            dropletsize=DropletSizeModel()
         )
 
         app.config['__model__'] = models.get(app.config['MODEL'])

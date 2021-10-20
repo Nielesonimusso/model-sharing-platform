@@ -14,8 +14,8 @@ from math import log10 as log, exp
 
 import sys
 
-__OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-__MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
+OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
 
 class PSWaterActivityTableDto(BaseDto):
     product_water_activity = fields.Float() 
@@ -31,7 +31,7 @@ class PSpHTableDto(BaseDto):
     product_pH = fields.Float() 
 
     units = dict(
-        product_pH = __OM.Acidity,
+        product_pH = OM.Acidity,
     )
     references = dict(
         product_pH = None,
@@ -41,7 +41,7 @@ class SCTemperatureTableDto(BaseDto):
     shelf_temperature = fields.Float() 
 
     units = dict(
-        shelf_temperature = __OM.degreeCelcius,
+        shelf_temperature = OM.degreeCelcius,
     )
     references = dict(
         shelf_temperature = None,
@@ -51,7 +51,7 @@ class SCTimeTableDto(BaseDto):
     shelf_time = fields.Float() 
 
     units = dict(
-        shelf_time = __OM.day,
+        shelf_time = OM.day,
     )
     references = dict(
         shelf_time = None,
@@ -64,12 +64,12 @@ class MicrobeDto(BaseDto):
 
     units = dict(
         microbe = None,
-        amount = __OM.colonyFormingUnitPerMillilitre, # fixed unit (colonyFormingUnitPerMillilitre (no log!))
+        amount = OM.colonyFormingUnitPerMillilitre, # fixed unit (colonyFormingUnitPerMillilitre (no log!))
     )
     references = dict(
         microbe = dict(
-            source = __MDB.Microbes,
-            property = __MDB.Organism
+            source = MDB.Microbes,
+            property = MDB.Organism
         ), # reference to microbe data source
         amount = None,
     )
@@ -87,8 +87,8 @@ class MicrobeUnitDto(BaseDto):
     )
     references = dict(
         microbe = dict(
-            source = __MDB.Microbes,
-            property = __MDB.Organism
+            source = MDB.Microbes,
+            property = MDB.Organism
         ), # reference to microbe data source
         amount = None,
         unit = None,

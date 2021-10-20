@@ -15,3 +15,4 @@ dependencies:
     - ipdb==0.13.3
     - rdflib==5.0.0
     - flask-cors==3.0.8
+    - scipy==1.4.1

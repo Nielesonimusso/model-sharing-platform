@@ -19,119 +19,114 @@ class ModelDbInitialize(BaseDbInitialize):
         #
         company_tue = Company(name='Technical University Eindhoven',
                               address='De Zaale, Eindhoven, The Netherlands').save()
-        Company(name='University Wageningen and Research',
+        company_wur = Company(name='University Wageningen and Research',
                 address='Droevendaalsesteeg 4, 6708 PB Wageningen, The Netherlands').save()
         company_unilever = Company(name='Unilever N.V.', address='Weena 455, 3013AL Rotterdam, The Netherlands').save()
         Company(name='Jheronimus Academy of Data Science',
                 address='Sint Janssingel 92, 5211 DA \'s-Hertogenbosch, The Netherlands').save()
-        Company(name='NIZO', address='Kernhemseweg 2, 6718 ZB Ede, The Netherlands').save()
+        company_nizo = Company(name='NIZO', address='Kernhemseweg 2, 6718 ZB Ede, The Netherlands').save()
         Company(name='Symrise', address='Holzminden, Germany').save()
         Company(name='Institute for Sustainable Process Technology',
                 address='Groen van Prinstererlaan 37, 3818 JN Amersfoort, The Netherlands').save()
-        test_company_1 = Company(name='Unilever Food Testing', address='NL').save()
-        test_company_2 = Company(name='TUe AgriFoodTech', address='DE').save()
+        company_lowmato = Company(name='LOWmato', address='De Zaale, Eindhoven, The Netherlands').save()
+        Company(name='Unilever Food Testing', address='NL').save()
+        Company(name='TUe AgriFoodTech', address='DE').save()
 
         #
         # USERS
         #
         password = b'inof1234'
-        u1, u2, u3, u4, tu5, tu6, tu7 = 'hossain', 'niels', 'janedoe', 'admin', 'test1_uni', 'test2_tue', 'test3_tue'
+        u1, u2, u3, u4, u5, u6 = 'hossain', 'niels', 'michiel', 'jakob', 'kevin', 'puneet'
         if User.query.filter(User.username == u1).count() == 0:
             user = User(username=u1, full_name='Hossain Muctadir', email='h.m.muctadir@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue, 
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_lowmato, 
                         api_key=password.decode('utf-8')+u1)
             user.save()
 
         if User.query.filter(User.username == u2).count() == 0:
             user = User(username=u2, full_name='Niels Rood', email='n.rood@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue, 
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_lowmato, 
                         api_key=password.decode('utf-8')+u2)
             user.save()
 
         if User.query.filter(User.username == u3).count() == 0:
-            user = User(username=u3, full_name='Jane Doe', email='janedoe@unilever.com',
+            user = User(username=u3, full_name='Michiel Gribnau', email='michiel@unilever.com',
                         password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_unilever, 
                         api_key=password.decode('utf-8')+u3)
             user.save()
 
         if User.query.filter(User.username == u4).count() == 0:
-            user = User(username=u4, full_name='MR Admin', email='admin@tue.nl',
+            user = User(username=u4, full_name='Jakob de Vlieg', email='jakob@tue.nl',
                         password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_tue, 
                         api_key=password.decode('utf-8')+u4)
             user.save()
 
-        if User.query.filter(User.username == tu5).count() == 0:
-            user = User(username=tu5, full_name='MR TEST1', email='test1@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_1, 
-                        api_key=password.decode('utf-8')+tu5)
+        if User.query.filter(User.username == u5).count() == 0:
+            user = User(username=u5, full_name='Kevin van Koerten', email='kevin@nizo.nl',
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_nizo, 
+                        api_key=password.decode('utf-8')+u5)
             user.save()
 
-        if User.query.filter(User.username == tu6).count() == 0:
-            user = User(username=tu6, full_name='MR TEST 2', email='test2@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_2, 
-                        api_key=password.decode('utf-8')+tu6)
-            user.save()
-
-        if User.query.filter(User.username == tu7).count() == 0:
-            user = User(username=tu7, full_name='MR TEST 3', email='test2@tue.nl',
-                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=test_company_2, 
-                        api_key=password.decode('utf-8')+tu7)
+        if User.query.filter(User.username == u6).count() == 0:
+            user = User(username=u6, full_name='Puneet Mishra', email='puneet@wur.nl',
+                        password_hash=bcrypt.hashpw(password, bcrypt.gensalt()), company=company_wur, 
+                        api_key=password.decode('utf-8')+u6)
             user.save()
 
         #
         # FOOD PRODUCTS
         #
-        fp_ts_nl = FoodProduct(name='Tomato Soup NL', company_code='NL_TOM_SOUP', standard_code='STD_TOM_SOUP',
-                               dosage=250,
-                               dosage_unit="gram per litre", ingredients=
-                               [Ingredient(company_code='10007', standard_code='10007', name='Tomaten standaard',
-                                           amount=20,
-                                           amount_unit='%'),
-                                Ingredient(company_code='10005', standard_code='10005', name='Salt', amount=3,
-                                           amount_unit='%'),
-                                Ingredient(company_code='10003', standard_code='10003', name='Azijn 10%', amount=2,
-                                           amount_unit='%'),
-                                Ingredient(company_code='10001', standard_code='10001', name='Sugar', amount=3,
-                                           amount_unit='%'),
-                                Ingredient(company_code='10009', standard_code='10009', name='Water', amount=74,
-                                           amount_unit='%')], processing_steps=
-                               [FoodProductProcessingStep(name='Mixing', equipment='Mixer', properties=[
-                                   ProcessingStepProperty(name='Speed', value='50', unit='rpm')])],
-                               created_on=datetime.utcnow(),
-                               created_by=User.query.get_one_where(User.username == u1),
-                               owner=company_tue).save()
+        # fp_ts_nl = FoodProduct(name='Tomato Soup NL', company_code='NL_TOM_SOUP', standard_code='STD_TOM_SOUP',
+        #                        dosage=250,
+        #                        dosage_unit="gram per litre", ingredients=
+        #                        [Ingredient(company_code='10007', standard_code='10007', name='Tomaten standaard',
+        #                                    amount=20,
+        #                                    amount_unit='%'),
+        #                         Ingredient(company_code='10005', standard_code='10005', name='Salt', amount=3,
+        #                                    amount_unit='%'),
+        #                         Ingredient(company_code='10003', standard_code='10003', name='Azijn 10%', amount=2,
+        #                                    amount_unit='%'),
+        #                         Ingredient(company_code='10001', standard_code='10001', name='Sugar', amount=3,
+        #                                    amount_unit='%'),
+        #                         Ingredient(company_code='10009', standard_code='10009', name='Water', amount=74,
+        #                                    amount_unit='%')], processing_steps=
+        #                        [FoodProductProcessingStep(name='Mixing', equipment='Mixer', properties=[
+        #                            ProcessingStepProperty(name='Speed', value='50', unit='rpm')])],
+        #                        created_on=datetime.utcnow(),
+        #                        created_by=User.query.get_one_where(User.username == u1),
+        #                        owner=company_tue).save()
 
-        fp_ts_de = FoodProduct(name='Tomato Soup DE', company_code='DE_TOM_SOUP', standard_code='STD2_TOM_SOUP',
-                               dosage=250,
-                               dosage_unit="gram per litre", ingredients=
-                               [Ingredient(company_code='10007', standard_code='10007', name='Tomaten standaard',
-                                           amount=20, amount_unit='%'),
-                                Ingredient(company_code='10005', standard_code='10005', name='Salt', amount=3,
-                                           amount_unit='%'),
-                                Ingredient(company_code='10003', standard_code='10003', name='Azijn 10%', amount=2,
-                                           amount_unit='%'),
-                                Ingredient(company_code='10001', standard_code='10001', name='Sugar', amount=3,
-                                           amount_unit='%'),
-                                Ingredient(company_code='10009', standard_code='10009', name='Water', amount=74,
-                                           amount_unit='%')], processing_steps=
-                               [FoodProductProcessingStep(name='Mixing', equipment='Mixer', properties=[
-                                   ProcessingStepProperty(name='Speed', value='50', unit='rpm')])],
-                               created_on=datetime.utcnow(),
-                               created_by=User.query.get_one_where(User.username == u2), owner=company_unilever).save()
+        # fp_ts_de = FoodProduct(name='Tomato Soup DE', company_code='DE_TOM_SOUP', standard_code='STD2_TOM_SOUP',
+        #                        dosage=250,
+        #                        dosage_unit="gram per litre", ingredients=
+        #                        [Ingredient(company_code='10007', standard_code='10007', name='Tomaten standaard',
+        #                                    amount=20, amount_unit='%'),
+        #                         Ingredient(company_code='10005', standard_code='10005', name='Salt', amount=3,
+        #                                    amount_unit='%'),
+        #                         Ingredient(company_code='10003', standard_code='10003', name='Azijn 10%', amount=2,
+        #                                    amount_unit='%'),
+        #                         Ingredient(company_code='10001', standard_code='10001', name='Sugar', amount=3,
+        #                                    amount_unit='%'),
+        #                         Ingredient(company_code='10009', standard_code='10009', name='Water', amount=74,
+        #                                    amount_unit='%')], processing_steps=
+        #                        [FoodProductProcessingStep(name='Mixing', equipment='Mixer', properties=[
+        #                            ProcessingStepProperty(name='Speed', value='50', unit='rpm')])],
+        #                        created_on=datetime.utcnow(),
+        #                        created_by=User.query.get_one_where(User.username == u2), owner=company_unilever).save()
 
-        fp_ts_de.permissions.append(FoodProductPermission(company_id=company_tue.id, food_product_id=fp_ts_de.id))
-        fp_ts_de.save()
+        # fp_ts_de.permissions.append(FoodProductPermission(company_id=company_tue.id, food_product_id=fp_ts_de.id))
+        # fp_ts_de.save()
 
-        FoodProduct(name='Tomato Ketchup', company_code='TOM_KET_001', standard_code='TOM_KET_001',
-                    dosage=250, dosage_unit="gram per litre", ingredients=
-                    [Ingredient(company_code='10007', standard_code='10007', name='Tomato Sweet', amount=60,
-                                amount_unit='%'),
-                     Ingredient(company_code='10005', standard_code='10005', name='Salt', amount=3, amount_unit='%'),
-                     Ingredient(company_code='10009', standard_code='10009', name='Water', amount=20, amount_unit='%'),
-                     Ingredient(company_code='10006', standard_code='10006', name='KCL', amount=2, amount_unit='%'),
-                     Ingredient(company_code='10001', standard_code='10001', name='Sugar', amount=20, amount_unit='%')],
-                    created_on=datetime.utcnow(), created_by=User.query.get_one_where(User.username == u2),
-                    owner=company_unilever).save()
+        # FoodProduct(name='Tomato Ketchup', company_code='TOM_KET_001', standard_code='TOM_KET_001',
+        #             dosage=250, dosage_unit="gram per litre", ingredients=
+        #             [Ingredient(company_code='10007', standard_code='10007', name='Tomato Sweet', amount=60,
+        #                         amount_unit='%'),
+        #              Ingredient(company_code='10005', standard_code='10005', name='Salt', amount=3, amount_unit='%'),
+        #              Ingredient(company_code='10009', standard_code='10009', name='Water', amount=20, amount_unit='%'),
+        #              Ingredient(company_code='10006', standard_code='10006', name='KCL', amount=2, amount_unit='%'),
+        #              Ingredient(company_code='10001', standard_code='10001', name='Sugar', amount=20, amount_unit='%')],
+        #             created_on=datetime.utcnow(), created_by=User.query.get_one_where(User.username == u2),
+        #             owner=company_unilever).save()
 
         #
         # MODELS

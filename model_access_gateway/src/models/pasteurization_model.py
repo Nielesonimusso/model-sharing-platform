@@ -12,15 +12,15 @@ from .model import get_model_ontology_dependency
 
 import sys
 
-__OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-__HDB = rdflib.Namespace(get_model_ontology_dependency('hex'))
-__MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
+OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
+HDB = rdflib.Namespace(get_model_ontology_dependency('hex'))
+MDB = rdflib.Namespace(get_model_ontology_dependency('microbe'))
 
 class PSFlowTableDto(BaseDto):
     product_flow = fields.Float() 
 
     units = dict(
-        product_flow = __OM["kilogramPerSecond-Time"],
+        product_flow = OM["kilogramPerSecond-Time"],
     )
     references = dict(
         product_flow = None,
@@ -30,7 +30,7 @@ class PSTemperatureTableDto(BaseDto):
     product_temperature = fields.Float() 
 
     units = dict(
-        product_temperature = __OM.degreeCelcius,
+        product_temperature = OM.degreeCelcius,
     )
     references = dict(
         product_temperature = None,
@@ -40,7 +40,7 @@ class PSDensityTableDto(BaseDto):
     product_density = fields.Float() 
 
     units = dict(
-        product_density = __OM.kilogramPerLitre,
+        product_density = OM.kilogramPerLitre,
     )
     references = dict(
         product_density = None,
@@ -50,7 +50,7 @@ class HTInternalDiameterTableDto(BaseDto):
     holding_tube_internal_diameter = fields.Float() 
 
     units = dict(
-        holding_tube_internal_diameter = __OM.millimetre,
+        holding_tube_internal_diameter = OM.millimetre,
     )
     references = dict(
         holding_tube_internal_diameter = None,
@@ -60,7 +60,7 @@ class HTLengthTableDto(BaseDto):
     holding_tube_length = fields.Float() 
 
     units = dict(
-        holding_tube_length = __OM.metre,
+        holding_tube_length = OM.metre,
     )
     references = dict(
         holding_tube_length = None,
@@ -73,12 +73,12 @@ class PasteurizationDto(BaseDto):
 
     units = dict(
         hex_type = None,
-        outlet_temperature = __OM.degreeCelsius, # fixed unit (degrees C)
+        outlet_temperature = OM.degreeCelsius, # fixed unit (degrees C)
     )
     references = dict(
         hex_type = dict(
-            source = __HDB.Hex,
-            property = __HDB.Type
+            source = HDB.Hex,
+            property = HDB.Type
         ), # reference to hex types data source
         outlet_temperature = None,
     )
@@ -90,12 +90,12 @@ class MicrobeDto(BaseDto):
 
     units = dict(
         microbe = None,
-        amount = __OM.colonyFormingUnitPerMillilitre, # fixed unit (colonyFormingUnitPerMillilitre (no log!))
+        amount = OM.colonyFormingUnitPerMillilitre, # fixed unit (colonyFormingUnitPerMillilitre (no log!))
     )
     references = dict(
         microbe = dict(
-            source = __MDB.Microbes,
-            property = __MDB.Organism
+            source = MDB.Microbes,
+            property = MDB.Organism
         ), # reference to microbe data source
         amount = None,
     )
@@ -113,8 +113,8 @@ class MicrobeUnitDto(BaseDto):
     )
     references = dict(
         microbe = dict(
-            source = __MDB.Microbes,
-            property = __MDB.Organism
+            source = MDB.Microbes,
+            property = MDB.Organism
         ), # reference to microbe data source
         amount = None,
         unit = None,
