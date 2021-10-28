@@ -39,19 +39,22 @@ def get_ontology() -> str:
 def run_model():
 
     model: Model = get_model(current_app)
-
+    print(f'got model {model}', file=sys.stderr)
     input_dto = type(f'Run{type(model).__name__}DtoSchema', (RunModelDtoSchema, ), dict(
         data = fields.Nested(model.input_dto),
         Meta = type(f'Run{type(model).__name__}DtoSchemaMeta',
             (Schema.Meta, ), dict(register=False))
     ))
-
+    print(f'got schema {input_dto}', file=sys.stderr)
     model_run_request = input_dto().load(request.json)
+    print('got data', file=sys.stderr)
     simulation_run = SimulationRun(submitted_on=datetime.utcnow(),
                                 #    submitted_by=model_run_request.created_by,
                                    status=ModelRunStatus.SUBMITTED,
-                                   parameters=request.json).save()
+                                   parameters=[]).save() # parameters are never used 
+                                #   or displayed, but can be very large, so they are not stored
 
+    print(f'saved simulation request entry')
     # TODO async model run code (as below); has issues with model chaining
     # def handle_result(run_id, future: Future):
 
@@ -73,7 +76,7 @@ def run_model():
     #     'run_id': simulation_run.id,
     #     'status': ModelRunStatus.SUBMITTED.value
     # }, ModelRunStatusDtoSchema), 201
-
+    print(f"running model...", file=sys.stderr)
     simulation_run.result = model.run_model(model_run_request.data)
     simulation_run.completed_on = datetime.utcnow()
     if len(errors := model.output_dto().validate(simulation_run.result)) == 0 :
@@ -94,7 +97,7 @@ def get_result(run_id: str):
     simulation_run = SimulationRun.query.get_or_404(run_id)
     result = dict(
         created_on = simulation_run.submitted_on,
-        model_name = 'tomato soup taste',
+        model_name = get_model(current_app).name,
         ran_on = simulation_run.completed_on,
         status = simulation_run.status.value,
         result = simulation_run.result,

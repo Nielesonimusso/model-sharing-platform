@@ -163,6 +163,7 @@ def setup_global_error_handlers(app: Flask):
         original = getattr(e, 'original_exception', e)
 
         if app.config.get('DEBUG'):
+            traceback.print_exc(file=sys.stderr)
             return traceback.format_exc(), 500
 
         # wrapped unhandled error

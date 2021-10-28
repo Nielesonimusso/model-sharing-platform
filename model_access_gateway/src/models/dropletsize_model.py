@@ -24,7 +24,7 @@ class MeasurementsTableDto(BaseDto):
 
     units = dict(
         wavelength = OM.nanometre,
-        log_attenuation = None, #TODO add unit
+        log_attenuation = OM.one,
         run = None
     )
     references = dict(
@@ -39,13 +39,11 @@ class CalibrationDataTableDto(BaseDto):
     beta = fields.Float()
     sd_beta = fields.Integer()
 
-    OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
         wavelength = OM.nanometre,
-        alpha = None, #TODO add unit
-        beta = None, #TODO add unit
-        sd_beta = None #TODO add unit
+        alpha = OM.one,
+        beta = OM.one,
+        sd_beta = OM.one
     )
     references = dict(
         wavelength = None,
@@ -57,10 +55,8 @@ class CalibrationDataTableDto(BaseDto):
 class GeometricMeanTableDto(BaseDto):
     geometric_mean = fields.Float() 
 
-    OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
-        geometric_mean = None, #TODO add unit
+        geometric_mean = OM.micrometre
     )
     references = dict(
         geometric_mean = None,
@@ -69,8 +65,6 @@ class GeometricMeanTableDto(BaseDto):
 class DropletSizeTableDto(BaseDto):
     run = fields.Integer()
     drop_size = fields.Float() 
-
-    OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
 
     units = dict(
         run = None,
@@ -116,10 +110,10 @@ class DropletSizeModel(Model):
     def run_model(self, input) -> Dict[str, List[dict]]:
 
         model = sorted(input.CalibrationData, key=lambda cd: cd.wavelength)
-        model_lambdas = np.array(map(lambda mdl: mdl.wavelength, model))
-        model_alphas = np.array(map(lambda mdl: mdl.alpha, model))
-        model_betas = np.array(map(lambda mdl: mdl.beta, model))
-        model_log_sd_betas = np.array(map(lambda mdl: log(mdl.sd_beta), model))
+        model_lambdas = np.array(list(map(lambda mdl: mdl.wavelength, model)))
+        model_alphas = np.array(list(map(lambda mdl: mdl.alpha, model)))
+        model_betas = np.array(list(map(lambda mdl: mdl.beta, model)))
+        model_exp_var_betas = np.array(list(map(lambda mdl: np.exp((mdl.sd_beta) ** 2), model)))
 
         scale = input.GeometricMean[0].geometric_mean
 
@@ -128,15 +122,15 @@ class DropletSizeModel(Model):
         droplet_sizes = []
 
         for run in runs:
-            measurements_at_run = sorted(
+            measurements_at_run = list(sorted(
                 filter(lambda m: m.run == run, input.Measurements),
-                key=lambda m: m.wavelength)
-            lambdas = np.array(map(lambda m: m.wavelength), measurements_at_run)
-            logA = np.array(map(lambda m: m.log_attenuation), measurements_at_run)
+                key=lambda m: m.wavelength))
+            lambdas = np.array(list(map(lambda m: m.wavelength, measurements_at_run)))
+            logA = np.array(list(map(lambda m: m.log_attenuation, measurements_at_run)))
 
             interp_alpha = np.interp(lambdas, model_lambdas, model_alphas)
             interp_beta = np.interp(lambdas, model_lambdas, model_betas)
-            interp_sd_beta = np.exp(np.interp(lambdas, model_lambdas, model_log_sd_betas))
+            interp_sd_beta = np.log(0.5 * np.interp(lambdas, model_lambdas, model_exp_var_betas))
 
             normalized_residue = (logA - interp_alpha)/interp_sd_beta
             normalized_beta = interp_beta/interp_sd_beta

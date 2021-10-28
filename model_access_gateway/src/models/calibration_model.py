@@ -25,8 +25,8 @@ class MeasurementsTableDto(BaseDto):
 
     units = dict(
         wavelength = OM.nanometre,
-        log_attenuation = None, #TODO add unit
-        drop_size = None, #TODO add unit
+        log_attenuation = OM.one,
+        drop_size = OM.micrometre,
         run = None
     )
     references = dict(
@@ -42,13 +42,11 @@ class CalibrationDataTableDto(BaseDto):
     beta = fields.Float()
     sd_beta = fields.Integer()
 
-    OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
         wavelength = OM.nanometre,
-        alpha = None, #TODO add unit
-        beta = None, #TODO add unit
-        sd_beta = None #TODO add unit
+        alpha = OM.one,
+        beta = OM.one,
+        sd_beta = OM.one,
     )
     references = dict(
         wavelength = None,
@@ -60,10 +58,8 @@ class CalibrationDataTableDto(BaseDto):
 class GeometricMeanTableDto(BaseDto):
     geometric_mean = fields.Float() 
 
-    OM = rdflib.Namespace('http://www.ontology-of-units-of-measure.org/resource/om-2/')
-
     units = dict(
-        geometric_mean = None, #TODO add unit
+        geometric_mean = OM.micrometre,
     )
     references = dict(
         geometric_mean = None,
@@ -100,31 +96,39 @@ class CalibrationModel(Model):
         return 16
 
     def run_model(self, input) -> Dict[str, List[dict]]:
+        print("running model", file=sys.stderr)
         # geometric mean
         drop_sizes = list(map(lambda m: m.drop_size, 
             input.Measurements))
         geometric_mean_droplet_sizes = exp(mean(map(log, drop_sizes)))
 
+        # print(f"geom mean {geometric_mean_droplet_sizes}", file=sys.stderr)
+
         # calibration fit
         lambdas = set(map(lambda m: m.wavelength, input.Measurements))
         calibration_data = []
 
-        for lambd_ in lambdas:
-            lambda_measurements = filter(lambda m: m.wavelength == lambd_, input.Measurements)
-            
+        # print("going over lambdas", file=sys.stderr)
+
+        for lambd_ in sorted(lambdas):
+            # print(f"lambda {lambd_}", file=sys.stderr)
+            lambda_measurements = list(filter(lambda m: m.wavelength == lambd_, input.Measurements))
             log_attenuation = list(map(lambda m: m.log_attenuation, lambda_measurements))
             log_normalized_dropsz = list(map(lambda m: m.drop_size / geometric_mean_droplet_sizes, 
                 lambda_measurements))
 
+            # print(f"before lingress", file=sys.stderr)
+            # print(f"logA: {log_attenuation}", file=sys.stderr)
+            # print(f"logA: {log_normalized_dropsz}", file=sys.stderr)
             fit = stats.linregress(log_attenuation, log_normalized_dropsz)
-
+            # print(f"after lingress", file=sys.stderr)
             calibration_data.append(dict(
                 wavelength=lambd_,
                 alpha=fit.intercept,
                 beta=fit.slope,
                 sd_beta=fit.stderr
             ))
-            
+        # print(f"lambdas complete", file=sys.stderr)
         return dict(
                 CalibrationData = calibration_data,
                 GeometricMean = [dict(geometric_mean = geometric_mean_droplet_sizes)]
