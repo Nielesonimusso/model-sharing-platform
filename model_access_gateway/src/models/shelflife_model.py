@@ -8,6 +8,7 @@ from common_data_access.dtos import BaseDto, RunModelDtoSchema
 from model_access_gateway.src.ingredient_store import get_ingredient_properties
 from model_access_gateway.src.models.model import Model
 from common_data_access import string_utils
+from model_access_gateway.src.models.pasteurization_model import PSDensityTableDto
 from .model import get_model_ontology_dependency
 
 from math import log10 as log, exp
@@ -35,6 +36,16 @@ class PSpHTableDto(BaseDto):
     )
     references = dict(
         product_pH = None,
+    )
+
+class PSdropletSizeDto(BaseDto):
+    product_droplet_size = fields.Float()
+
+    units = dict(
+        product_droplet_size = OM.micrometre
+    )
+    references = dict(
+        product_droplet_size = None
     )
 
 class SCTemperatureTableDto(BaseDto):
@@ -98,6 +109,7 @@ class MicrobeUnitDto(BaseDto):
 class ShelflifeInputDto(BaseDto):
     PSWaterActivity = fields.Nested(PSWaterActivityTableDto, many=True)
     PSpH = fields.Nested(PSpHTableDto, many=True)
+    PSDropletSize = fields.Nested(PSdropletSizeDto, many=True)
     SCTemperature = fields.Nested(SCTemperatureTableDto, many=True)
     SCTime = fields.Nested(SCTimeTableDto, many=True)
     StartingMicrobes = fields.Nested(MicrobeDto, many=True)

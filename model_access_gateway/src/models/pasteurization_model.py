@@ -77,7 +77,7 @@ class PasteurizationDto(BaseDto):
     )
     references = dict(
         hex_type = dict(
-            source = HDB.Hex,
+            source = HDB.HeatExchangers,
             property = HDB.Type
         ), # reference to hex types data source
         outlet_temperature = None,

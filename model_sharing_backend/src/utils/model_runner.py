@@ -76,6 +76,7 @@ def run_simulation(simulation: Simulation):
             except KeyError as ex:
                 print(f"data (not yet) available when trying to run {incomplete_model.name}; skipping", 
                     file=sys.stderr)
+                print(ex, file=sys.stderr)
                 pass
             except Exception as ex:
                 raise Exception from ex
@@ -85,11 +86,11 @@ def run_simulation(simulation: Simulation):
             # if no more models completed this loop, cancel remaining and set errors
             for incomplete_model in (model for model in simulation.models if 
             not any((c_model.id == model.id for c_model in complete_models_list))):
-                failed_model = ExecutedModelDtoSchema.load(dict(
+                failed_model = ExecutedModel(
                     error_message="Not all input data available for this model",
                     created_on=datetime.utcnow(),
                     model_id=incomplete_model.id,
-                ))
+                )
                 executed_simulation.executed_models.append(failed_model)
             break
         else:

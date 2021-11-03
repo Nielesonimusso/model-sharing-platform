@@ -114,13 +114,13 @@ class CalibrationModel(Model):
             # print(f"lambda {lambd_}", file=sys.stderr)
             lambda_measurements = list(filter(lambda m: m.wavelength == lambd_, input.Measurements))
             log_attenuation = list(map(lambda m: m.log_attenuation, lambda_measurements))
-            log_normalized_dropsz = list(map(lambda m: m.drop_size / geometric_mean_droplet_sizes, 
+            log_normalized_dropsz = list(map(lambda m: log(m.drop_size / geometric_mean_droplet_sizes), 
                 lambda_measurements))
 
             # print(f"before lingress", file=sys.stderr)
             # print(f"logA: {log_attenuation}", file=sys.stderr)
             # print(f"logA: {log_normalized_dropsz}", file=sys.stderr)
-            fit = stats.linregress(log_attenuation, log_normalized_dropsz)
+            fit = stats.linregress(log_normalized_dropsz, log_attenuation)
             # print(f"after lingress", file=sys.stderr)
             calibration_data.append(dict(
                 wavelength=lambd_,

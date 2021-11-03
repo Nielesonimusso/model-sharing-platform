@@ -37,7 +37,7 @@ class CalibrationDataTableDto(BaseDto):
     wavelength = fields.Float() 
     alpha = fields.Float()
     beta = fields.Float()
-    sd_beta = fields.Integer()
+    sd_beta = fields.Float()
 
     units = dict(
         wavelength = OM.nanometre,
@@ -110,10 +110,10 @@ class DropletSizeModel(Model):
     def run_model(self, input) -> Dict[str, List[dict]]:
 
         model = sorted(input.CalibrationData, key=lambda cd: cd.wavelength)
-        model_lambdas = np.array(list(map(lambda mdl: mdl.wavelength, model)))
-        model_alphas = np.array(list(map(lambda mdl: mdl.alpha, model)))
-        model_betas = np.array(list(map(lambda mdl: mdl.beta, model)))
-        model_exp_var_betas = np.array(list(map(lambda mdl: np.exp((mdl.sd_beta) ** 2), model)))
+        model_lambdas = np.fromiter(map(lambda mdl: mdl.wavelength, model), dtype=np.int32)
+        model_alphas = np.fromiter(map(lambda mdl: mdl.alpha, model), dtype=np.float64)
+        model_betas = np.fromiter(map(lambda mdl: mdl.beta, model), dtype=np.float64)
+        model_sd_betas = np.fromiter(map(lambda mdl: mdl.sd_beta, model), dtype=np.float64)
 
         scale = input.GeometricMean[0].geometric_mean
 
@@ -125,12 +125,12 @@ class DropletSizeModel(Model):
             measurements_at_run = list(sorted(
                 filter(lambda m: m.run == run, input.Measurements),
                 key=lambda m: m.wavelength))
-            lambdas = np.array(list(map(lambda m: m.wavelength, measurements_at_run)))
-            logA = np.array(list(map(lambda m: m.log_attenuation, measurements_at_run)))
+            lambdas = np.fromiter(map(lambda m: m.wavelength, measurements_at_run), dtype=np.float64)
+            logA = np.fromiter(map(lambda m: m.log_attenuation, measurements_at_run), dtype=np.float64)
 
             interp_alpha = np.interp(lambdas, model_lambdas, model_alphas)
             interp_beta = np.interp(lambdas, model_lambdas, model_betas)
-            interp_sd_beta = np.log(0.5 * np.interp(lambdas, model_lambdas, model_exp_var_betas))
+            interp_sd_beta = np.exp(np.interp(lambdas, model_lambdas, np.log(model_sd_betas)))
 
             normalized_residue = (logA - interp_alpha)/interp_sd_beta
             normalized_beta = interp_beta/interp_sd_beta
@@ -140,7 +140,7 @@ class DropletSizeModel(Model):
 
             droplet_sizes.append(dict(
                 run = run,
-                droplet_size = dropsz
+                drop_size = dropsz
             ))
             
         return dict(
