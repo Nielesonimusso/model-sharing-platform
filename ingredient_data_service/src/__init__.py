@@ -17,6 +17,10 @@ def create_app() -> Flask:
     from ingredient_data_service.src.routes import routes_blueprint
     app.register_blueprint(routes_blueprint, url_prefix='/api')
 
+    # just initialize the database
+    from ingredient_data_service.src.data.db_init import IngredientDbInitialize
+    IngredientDbInitialize().create_database(True, data_file_path=DefaultConfiguration.INGREDIENT_FILE_PATH)
+
     return app
 
 
